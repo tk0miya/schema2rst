@@ -54,14 +54,16 @@ class MySQLColumn:
         self.engine = engine
 
         schema_name = os.path.basename(str(self.engine.url))
-        query = """SELECT COLUMN_COMMENT
+        query = """SELECT COLUMN_COMMENT, COLUMN_DEFAULT
                    FROM information_schema.Columns
                    WHERE TABLE_SCHEMA = '%s' AND
                          TABLE_NAME = '%s' AND
                          COLUMN_NAME = '%s'""" % \
                    (schema_name, self.meta.table.name, self.name)
         rs = self.engine.execute(query)
-        self.comment = rs.fetchone()[0]
+        row = rs.fetchone()
+        self.comment = row[0]
+        self.default = row[1]
 
     @property
     def fullname(self):
@@ -85,7 +87,7 @@ class MySQLColumn:
 
     @property
     def default(self):
-        return self.meta.default
+        return self.default
 
     @property
     def doc(self):
