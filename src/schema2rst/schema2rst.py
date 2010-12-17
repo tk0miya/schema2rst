@@ -48,6 +48,10 @@ class MySQLTable:
 class MySQLColumn:
     def __init__(self, meta):
         self.meta = meta
+        self.comment = None
+
+    def reflect(self, engine):
+        self.engine = engine
 
         schema_name = os.path.basename(str(self.engine.url))
         query = """SELECT COLUMN_COMMENT
@@ -58,9 +62,6 @@ class MySQLColumn:
                    (schema_name, self.meta.table.name, self.name)
         rs = self.engine.execute(query)
         self.comment = rs.fetchone()[0]
-
-    def reflect(self, engine):
-        self.engine = engine
 
     @property
     def fullname(self):
