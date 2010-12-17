@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import os
 import sqlalchemy
 from sphinx import SphinxDocGenerator
 from pit import Pit
@@ -48,12 +49,22 @@ class MySQLColumn:
     def __init__(self, meta):
         self.meta = meta
 
+        schema_name = os.path.basename(str(self.engine.url))
+        query = """SELECT COLUMN_COMMENT
+                   FROM information_schema.Columns
+                   WHERE TABLE_SCHEMA = '%s' AND
+                         TABLE_NAME = '%s' AND
+                         COLUMN_NAME = '%s'""" % \
+                   (schema_name, self.meta.table.name, self.name)
+        rs = self.engine.execute(query)
+        self.comment = rs.fetchone()[0]
+
     def reflect(self, engine):
         self.engine = engine
 
     @property
     def fullname(self):
-        return self.meta.name
+        return self.comment or self.meta.name
 
     @property
     def name(self):
