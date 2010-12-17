@@ -99,11 +99,13 @@ def main():
     for table in m.tables.values():
         sphinx.header(table.name, '-')
 
-        headers = ['Fullname', 'Name', 'Type', 'NOT NULL', 'PKey', 'Default', 'Comment']
+        headers = ['Fullname', 'Name', 'Type', 'NOT NULL',
+                   'PKey', 'Default', 'Comment']
         sphinx.listtable(headers)
 
         for c in table.columns:
-            columns = [c.fullname, c.name, c.type, c.nullable, c.primary_key, c.default, c.doc]
+            columns = [c.fullname, c.name, c.type, c.nullable,
+                       c.primary_key, c.default, c.doc]
             sphinx.listtable_column(columns)
 
 
