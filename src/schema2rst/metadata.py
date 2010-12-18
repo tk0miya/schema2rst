@@ -28,11 +28,11 @@ class MySQLMetaData:
             fullname = decode(re.sub('(; )?InnoDB free.*$', '', r[1]))
 
             table = MySQLTable(self, [name, fullname])
-            table.reflect(engine)
+            table.reflect_columns(engine)
             self.tables[name] = table
 
         for table_name in self.tables:
-            self.tables[table_name].reflect2(engine)
+            self.tables[table_name].reflect_keys(engine)
 
     def table(self, table_name):
         if hasattr(table_name, 'name'):
@@ -49,7 +49,7 @@ class MySQLTable:
         self.keys = []
         self.columns = []
 
-    def reflect(self, engine):
+    def reflect_columns(self, engine):
         query = """SELECT COLUMN_NAME, COLUMN_DEFAULT, IS_NULLABLE,
                           COLLATION_NAME, COLUMN_TYPE, COLUMN_KEY,
                           EXTRA, COLUMN_COMMENT
@@ -61,7 +61,7 @@ class MySQLTable:
             column = MySQLColumn(self, r)
             self.columns.append(column)
 
-    def reflect2(self, engine):
+    def reflect_keys(self, engine):
         query = """SELECT CONSTRAINT_NAME, CONSTRAINT_TYPE
                    FROM information_schema.table_constraints
                    WHERE TABLE_SCHEMA = '%s' AND TABLE_NAME = '%s'""" % \
