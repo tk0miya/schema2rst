@@ -33,8 +33,8 @@ def main():
         sphinx.listtable(headers)
 
         for c in insp.get_columns(table):
-            columns = ['', c.get('name'), c.get('type'), c.get('nullable'),
-                       '', c.get('default'), '']
+            columns = [c.get('fullname'), c.get('name'), c.get('type'), c.get('nullable'),
+                       c.get('primary_key'), c.get('default'), c.get('comment')]
             sphinx.listtable_column(columns)
 
         indexes = insp.get_indexes(table)

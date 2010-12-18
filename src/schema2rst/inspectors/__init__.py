@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from sqlalchemy.engine.reflection import Inspector
+import inspector
 
 
 def create_inspector(engine):
-    return Inspector(engine)
+    return inspector.Inspector(engine)
