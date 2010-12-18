@@ -72,9 +72,17 @@ class MySQLTable:
     @property
     def columns(self):
         for column in self.meta.columns:
-            column = MySQLColumn(column)
+            column = MySQLColumn(self, column)
             column.reflect(self.engine)
             yield column
+
+    def refkey(self, column):
+        keys = [key for key in self.keys \
+                if column in key.columns and key.type == 'FOREIGN KEY']
+        if keys:
+            return keys[0]
+        else:
+            return None
 
 
 class MySQLConstraint:
@@ -92,11 +100,10 @@ class MySQLConstraint:
 
         query = """SELECT COLUMN_NAME, REFERENCED_TABLE_NAME,
                           REFERENCED_COLUMN_NAME
-                   FROM information_schema.table_constraints
-                   LEFT JOIN information_schema.key_column_usage
-                             USING (TABLE_SCHEMA, TABLE_NAME, CONSTRAINT_NAME)
-                   WHERE TABLE_SCHEMA = '%s' AND TABLE_NAME = '%s'""" % \
-                   (schema_name, self.table.name)
+                   FROM information_schema.key_column_usage
+                   WHERE TABLE_SCHEMA = '%s' AND TABLE_NAME = '%s' AND
+                         CONSTRAINT_NAME = '%s'""" % \
+                   (schema_name, self.table.name, self.name)
         rs = self.engine.execute(query)
         meta = self.table.metadata
         for r in rs.fetchall():
@@ -107,7 +114,8 @@ class MySQLConstraint:
 
 
 class MySQLColumn:
-    def __init__(self, meta):
+    def __init__(self, table, meta):
+        self.table = table
         self.meta = meta
 
     def reflect(self, engine):
@@ -167,6 +175,10 @@ class MySQLColumn:
             options.append(self._collation_name)
         if self._extra:
             options.append(self._extra)
+        if self.table.refkey(self.meta):
+            key = self.table.refkey(self.meta)
+            mesg = "Refer: %s" % key.references[0]
+            options.append(mesg)
 
         if self._comment and options:
             return "%s (%s)" % (self.comment, ", ".join(options))
