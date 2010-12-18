@@ -42,6 +42,7 @@ class MySQLTable:
         self.name = name
         self.meta = schema.meta.tables[name]
         self.keys = []
+        self.columns = []
 
     def reflect(self, engine):
         self.engine = engine
@@ -67,6 +68,11 @@ class MySQLTable:
         row = rs.fetchone()
         self.fullname = decode(re.sub('(; )?InnoDB free.*$', '', row[0]))
 
+        for column in self.meta.columns:
+            column = MySQLColumn(column.name, self, column)
+            column.reflect(self.engine)
+            self.columns.append(column)
+
     @property
     def name(self):
         return self.meta.name
@@ -80,13 +86,6 @@ class MySQLTable:
             column_name = column_name.name
 
         return self.meta.c[column_name]
-
-    @property
-    def columns(self):
-        for column in self.meta.columns:
-            column = MySQLColumn(self, column)
-            column.reflect(self.engine)
-            yield column
 
     def refkey(self, column):
         keys = [key for key in self.keys \
@@ -126,9 +125,14 @@ class MySQLConstraint:
 
 
 class MySQLColumn:
-    def __init__(self, table, meta):
+    def __init__(self, name, table, meta):
         self.table = table
         self.meta = meta
+        self.name = name
+        self.type = meta.type
+        self.nullable = meta.nullable
+        self.primary_key = meta.primary_key
+        self.default = meta.default
 
     def reflect(self, engine):
         self.engine = engine
@@ -139,62 +143,41 @@ class MySQLColumn:
                    WHERE TABLE_SCHEMA = '%s' AND
                          TABLE_NAME = '%s' AND
                          COLUMN_NAME = '%s'""" % \
-                   (schema_name, self.meta.table.name, self.name)
+                   (schema_name, self.table.name, self.name)
         rs = self.engine.execute(query)
         row = rs.fetchone()
         comment = decode(row[0])
-        self._default = decode(row[1])
-        self._collation_name = row[2]
-        self._extra = row[3]
+        self.default = decode(row[1])
+        self.collation_name = row[2]
+        self.extra = row[3]
 
         match = re.match('^(.*?)(?:\(|¡Ê)(.*)(?:\)|¡Ë)\s*$', comment)
         if match:
-            self._fullname = match.group(1)
-            self._comment = match.group(2)
+            self.fullname = match.group(1)
+            self.comment = match.group(2)
+        elif comment:
+            self.fullname = comment
+            self.comment = ''
         else:
-            self._fullname = comment
-            self._comment = ''
-
-    @property
-    def fullname(self):
-        return self._fullname or self.meta.name
-
-    @property
-    def name(self):
-        return self.meta.name
-
-    @property
-    def type(self):
-        return self.meta.type
-
-    @property
-    def nullable(self):
-        return self.meta.nullable
-
-    @property
-    def primary_key(self):
-        return self.meta.primary_key
-
-    @property
-    def default(self):
-        return self._default
+            self.fullname = self.name
+            self.comment = ''
 
     @property
     def doc(self):
         options = []
 
-        if self._collation_name and self._collation_name != 'utf8_general_ci':
-            options.append(self._collation_name)
-        if self._extra:
-            options.append(self._extra)
+        if self.collation_name and self.collation_name != 'utf8_general_ci':
+            options.append(self.collation_name)
+        if self.extra:
+            options.append(self.extra)
         if self.table.refkey(self.meta):
             key = self.table.refkey(self.meta)
             mesg = "Refer: %s" % key.references[0]
             options.append(mesg)
 
-        if self._comment and options:
+        if self.comment and options:
             return "%s (%s)" % (self.comment, ", ".join(options))
         elif options:
             return ", ".join(options)
         else:
-            return self._comment
+            return self.comment
