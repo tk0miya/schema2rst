@@ -28,10 +28,11 @@ class MySQLMetaData:
             fullname = decode(re.sub('(; )?InnoDB free.*$', '', r[1]))
 
             table = MySQLTable(self, [name, fullname])
+            table.reflect(engine)
             self.tables[name] = table
 
         for table_name in self.tables:
-            self.tables[table_name].reflect(engine)
+            self.tables[table_name].reflect2(engine)
 
     def table(self, table_name):
         if hasattr(table_name, 'name'):
@@ -60,13 +61,14 @@ class MySQLTable:
             column = MySQLColumn(self, r)
             self.columns.append(column)
 
+    def reflect2(self, engine):
         query = """SELECT CONSTRAINT_NAME, CONSTRAINT_TYPE
                    FROM information_schema.table_constraints
                    WHERE TABLE_SCHEMA = '%s' AND TABLE_NAME = '%s'""" % \
                    (self.schema.name, self.name)
         rs = engine.execute(query)
         for r in rs.fetchall():
-            key = MySQLConstraint(r[0], self, r[1])
+            key = MySQLConstraint(self, r)
             key.reflect(engine)
             self.keys.append(key)
 
@@ -80,20 +82,12 @@ class MySQLTable:
         else:
             return None
 
-    def refkey(self, column):
-        keys = [key for key in self.keys \
-                if column in key.columns and key.type == 'FOREIGN KEY']
-        if keys:
-            return keys[0]
-        else:
-            return None
-
 
 class MySQLConstraint:
-    def __init__(self, name, table, type):
-        self.name = name
+    def __init__(self, table, row):
         self.table = table
-        self.type = type
+        self.name = row[0]
+        self.type = row[1]
         self.columns = []
         self.references = []
 
@@ -138,6 +132,18 @@ class MySQLColumn:
             self.fullname = self.name
             self.comment = ''
 
+    def __str__(self):
+        return "%s.%s" % (self.table.name, self.name)
+
+    @property
+    def reference_key(self):
+        keys = [key for key in self.table.keys \
+                if self in key.columns and key.type == 'FOREIGN KEY']
+        if keys:
+            return keys[0]
+        else:
+            return None
+
     @property
     def doc(self):
         options = []
@@ -146,8 +152,8 @@ class MySQLColumn:
             options.append(self.collation_name)
         if self.extra:
             options.append(self.extra)
-        if self.table.refkey(self):
-            key = self.table.refkey(self)
+        if self.reference_key:
+            key = self.reference_key
             mesg = "Refer: %s" % key.references[0]
             options.append(mesg)
 
