@@ -1,0 +1,4 @@
+db: sample
+host: localhost
+passwd: passwd
+user: user1

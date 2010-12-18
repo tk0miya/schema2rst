@@ -1,17 +1,19 @@
 # -*- coding: utf-8 -*-
 
 import os
+import sys
+import yaml
 import sqlalchemy
 from metadata import MySQLMetaData
 from sphinx import SphinxDocGenerator
-from pit import Pit
 
 
 def main():
-    config = Pit.get('example', {'require': {'host': 'localhost',
-                                              'user': 'gmappers',
-                                              'passwd': '',
-                                              'db': 'gmappers'}})
+    if len(sys.argv) != 2:
+        sys.stderr.write('Usage: schema2rst CONFIG_FILE\n')
+        sys.exit(1)
+
+    config = yaml.load(file(sys.argv[1]))
 
     url = 'mysql://%s:%s@%s/%s' % \
           (config['user'], config['passwd'], config['host'], config['db'])
