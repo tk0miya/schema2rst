@@ -46,6 +46,8 @@ def main():
                 else:
                     string = "KEY: %s (%s)" % (index['name'], ', '.join(index['column_names']))
 
+                sphinx.list_item(string)
+
 
 if __name__ == '__main__':
     main()
