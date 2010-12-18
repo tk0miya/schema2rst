@@ -24,20 +24,23 @@ def main():
     sphinx = SphinxDocGenerator()
     sphinx.header(u'Schema: %s' % config['db'])
 
-    for table in insp.get_table_names():
+    for table in insp.get_tables():
         # FIXME: support fullname (table comment)
-        sphinx.header(table, '-')
+        if table['fullname']:
+            sphinx.header("%s (%s)" % (table['fullname'], table['name']), '-')
+        else:
+            sphinx.header(table['name'], '-')
 
         headers = ['Fullname', 'Name', 'Type', 'NOT NULL',
                    'PKey', 'Default', 'Comment']
         sphinx.listtable(headers)
 
-        for c in insp.get_columns(table):
+        for c in insp.get_columns(table['name']):
             columns = [c.get('fullname'), c.get('name'), c.get('type'), c.get('nullable'),
                        c.get('primary_key'), c.get('default'), c.get('comment')]
             sphinx.listtable_column(columns)
 
-        indexes = insp.get_indexes(table)
+        indexes = insp.get_indexes(table['name'])
         if indexes:
             sphinx.header(u'Keys', '^')
             for index in indexes:

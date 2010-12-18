@@ -12,6 +12,15 @@ class Inspector(reflection.Inspector):
         else:
             return string
 
+    def get_tables(self, **kw):
+        tables = []
+        table_names = super(Inspector, self).get_table_names(**kw)
+        for table_name in table_names:
+            table = {'name': table_name, 'fullname': ''}
+            tables.append(table)
+
+        return tables
+
     def get_columns(self, table_name, **kw):
         primary_keys = self.get_primary_keys(table_name)
         columns = super(Inspector, self).get_columns(table_name, **kw)
