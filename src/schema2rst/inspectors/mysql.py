@@ -3,6 +3,7 @@
 import re
 import common
 
+
 class Inspector(common.Inspector):
     def __init__(self, bind):
         super(Inspector, self).__init__(bind)
@@ -23,7 +24,8 @@ class Inspector(common.Inspector):
     def get_columns(self, table_name, **kw):
         columns = super(Inspector, self).get_columns(table_name, **kw)
         for column in columns:
-            query = """SELECT COLLATION_NAME, COLUMN_TYPE, EXTRA, COLUMN_COMMENT
+            query = """SELECT COLLATION_NAME, COLUMN_TYPE,
+                              EXTRA, COLUMN_COMMENT
                        FROM information_schema.Columns
                        WHERE TABLE_SCHEMA = '%s' AND TABLE_NAME = '%s' AND
                              COLUMN_NAME = '%s'""" % \

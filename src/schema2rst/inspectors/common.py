@@ -2,6 +2,7 @@
 
 from sqlalchemy.engine import reflection
 
+
 class Inspector(reflection.Inspector):
     def __init__(self, bind):
         super(Inspector, self).__init__(bind)

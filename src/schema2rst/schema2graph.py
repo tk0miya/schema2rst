@@ -32,13 +32,15 @@ def main():
 
     for table in m.tables.values():
         if table.fullname:
-            sphinx.out('      %s [label="%s\\n(%s)"];' % (table.name, table.name, table.fullname))
+            sphinx.out('      %s [label="%s\\n(%s)"];' % \
+                       (table.name, table.name, table.fullname))
         else:
             sphinx.out('      %s;' % table.name)
 
         for key in table.keys:
             if key.type == 'FOREIGN KEY':
-                sphinx.out('      %s -> %s;' % (table.name, key.references[0].table.name))
+                sphinx.out('      %s -> %s;' % \
+                           (table.name, key.references[0].table.name))
 
     sphinx.out("   }")
 

@@ -36,8 +36,9 @@ def main():
         sphinx.listtable(headers)
 
         for c in insp.get_columns(table['name']):
-            columns = [c.get('fullname'), c.get('name'), c.get('type'), c.get('nullable'),
-                       c.get('primary_key'), c.get('default'), c.get('comment')]
+            columns = [c.get('fullname'), c.get('name'), c.get('type'),
+                       c.get('nullable'), c.get('primary_key'),
+                       c.get('default'), c.get('comment')]
             sphinx.listtable_column(columns)
 
         indexes = insp.get_indexes(table['name'])
@@ -45,10 +46,12 @@ def main():
             sphinx.header(u'Keys', '^')
             for index in indexes:
                 if index['unique']:
-                    string = "UNIQUE KEY: %s (%s)" % (index['name'], ', '.join(index['column_names']))
+                    format = "UNIQUE KEY: %s (%s)"
                 else:
-                    string = "KEY: %s (%s)" % (index['name'], ', '.join(index['column_names']))
+                    format = "KEY: %s (%s)"
 
+                string = format % (index['name'],
+                                   ', '.join(index['column_names']))
                 sphinx.list_item(string)
 
 
