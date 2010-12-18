@@ -16,25 +16,31 @@ class MySQLMetaData:
     def __init__(self):
         self.meta = sqlalchemy.MetaData()
         self.engine = None
+        self.tables = {}
 
     def reflect(self, engine):
         self.engine = engine
         self.meta.reflect(engine)
 
-    @property
-    def tables(self):
-        _tables = {}
         for table_name in self.meta.tables:
-            table = MySQLTable(self.meta.tables[table_name])
-            table.reflect(self.engine)
-            _tables[table_name] = table
+            table = MySQLTable(self, table_name)
+            self.tables[table_name] = table
 
-        return _tables
+        for table_name in self.tables:
+            self.tables[table_name].reflect(self.engine)
+
+    def table(self, table_name):
+        if hasattr(table_name, 'name'):
+            table_name = table_name.name
+
+        return self.tables[table_name]
 
 
 class MySQLTable:
-    def __init__(self, meta):
-        self.meta = meta
+    def __init__(self, schema, name):
+        self.schema = schema
+        self.name = name
+        self.meta = schema.meta.tables[name]
         self.keys = []
 
     def reflect(self, engine):
@@ -48,7 +54,7 @@ class MySQLTable:
                    (schema_name, self.name)
         rs = self.engine.execute(query)
         for r in rs.fetchall():
-            key = MySQLConstraint(r[0], self.meta, r[1])
+            key = MySQLConstraint(r[0], self, r[1])
             key.reflect(self.engine)
             self.keys.append(key)
 
@@ -68,6 +74,12 @@ class MySQLTable:
     @property
     def fullname(self):
         return self.fullname
+
+    def column(self, column_name):
+        if hasattr(column_name, 'name'):
+            column_name = column_name.name
+
+        return self.meta.c[column_name]
 
     @property
     def columns(self):
@@ -105,12 +117,12 @@ class MySQLConstraint:
                          CONSTRAINT_NAME = '%s'""" % \
                    (schema_name, self.table.name, self.name)
         rs = self.engine.execute(query)
-        meta = self.table.metadata
+        schema = self.table.schema
         for r in rs.fetchall():
-            self.columns.append(self.table.c[r[0]])
+            self.columns.append(self.table.column(r[0]))
             if r[1]:
-                reftable = meta.tables[r[1]]
-                self.references.append(reftable.c[r[2]])
+                reftable = schema.table(r[1])
+                self.references.append(reftable.column(r[2]))
 
 
 class MySQLColumn:
