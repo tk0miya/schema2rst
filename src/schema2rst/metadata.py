@@ -39,9 +39,23 @@ class MySQLTable:
     def reflect(self, engine):
         self.engine = engine
 
+        schema_name = os.path.basename(str(self.engine.url))
+        query = """SELECT TABLE_COMMENT
+                   FROM information_schema.Tables
+                   WHERE TABLE_SCHEMA = '%s' AND
+                         TABLE_NAME = '%s'""" % \
+                   (schema_name, self.name)
+        rs = self.engine.execute(query)
+        row = rs.fetchone()
+        self.fullname = decode(re.sub('(; )?InnoDB free.*$', '', row[0]))
+
     @property
     def name(self):
         return self.meta.name
+
+    @property
+    def fullname(self):
+        return self.fullname
 
     @property
     def columns(self):

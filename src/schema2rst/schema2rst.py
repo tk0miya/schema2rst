@@ -24,7 +24,11 @@ def main():
     sphinx.header(u'Schema: %s' % config['db'])
 
     for table in m.tables.values():
-        sphinx.header(table.name, '-')
+        if table.fullname:
+            header = u"%s (%s)" % (table.fullname, table.name)
+            sphinx.header(header, '-')
+        else:
+            sphinx.header(table.name, '-')
 
         headers = ['Fullname', 'Name', 'Type', 'NOT NULL',
                    'PKey', 'Default', 'Comment']
