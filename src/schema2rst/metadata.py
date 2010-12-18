@@ -19,7 +19,7 @@ class MySQLMetaData:
         self.tables = {}
 
     def reflect(self, engine):
-        self.engine = engine
+        self.name = os.path.basename(str(engine.url))
         self.meta.reflect(engine)
 
         for table_name in self.meta.tables:
@@ -27,7 +27,7 @@ class MySQLMetaData:
             self.tables[table_name] = table
 
         for table_name in self.tables:
-            self.tables[table_name].reflect(self.engine)
+            self.tables[table_name].reflect(engine)
 
     def table(self, table_name):
         if hasattr(table_name, 'name'):
@@ -45,33 +45,30 @@ class MySQLTable:
         self.columns = []
 
     def reflect(self, engine):
-        self.engine = engine
+        for c in self.meta.columns:
+            column = MySQLColumn(c.name, self)
+            self.columns.append(column)
 
-        schema_name = os.path.basename(str(self.engine.url))
+        for column in self.columns:
+            column.reflect(engine)
 
         query = """SELECT CONSTRAINT_NAME, CONSTRAINT_TYPE
                    FROM information_schema.table_constraints
                    WHERE TABLE_SCHEMA = '%s' AND TABLE_NAME = '%s'""" % \
-                   (schema_name, self.name)
-        rs = self.engine.execute(query)
+                   (self.schema.name, self.name)
+        rs = engine.execute(query)
         for r in rs.fetchall():
             key = MySQLConstraint(r[0], self, r[1])
-            key.reflect(self.engine)
+            key.reflect(engine)
             self.keys.append(key)
 
         query = """SELECT TABLE_COMMENT
                    FROM information_schema.Tables
-                   WHERE TABLE_SCHEMA = '%s' AND
-                         TABLE_NAME = '%s'""" % \
-                   (schema_name, self.name)
-        rs = self.engine.execute(query)
+                   WHERE TABLE_SCHEMA = '%s' AND TABLE_NAME = '%s'""" % \
+                   (self.schema.name, self.name)
+        rs = engine.execute(query)
         row = rs.fetchone()
         self.fullname = decode(re.sub('(; )?InnoDB free.*$', '', row[0]))
-
-        for column in self.meta.columns:
-            column = MySQLColumn(column.name, self, column)
-            column.reflect(self.engine)
-            self.columns.append(column)
 
     @property
     def name(self):
@@ -85,7 +82,11 @@ class MySQLTable:
         if hasattr(column_name, 'name'):
             column_name = column_name.name
 
-        return self.meta.c[column_name]
+        ret = [c for c in self.columns if c.name == column_name]
+        if ret:
+            return ret[0]
+        else:
+            return None
 
     def refkey(self, column):
         keys = [key for key in self.keys \
@@ -105,17 +106,13 @@ class MySQLConstraint:
         self.references = []
 
     def reflect(self, engine):
-        self.engine = engine
-
-        schema_name = os.path.basename(str(self.engine.url))
-
         query = """SELECT COLUMN_NAME, REFERENCED_TABLE_NAME,
                           REFERENCED_COLUMN_NAME
                    FROM information_schema.key_column_usage
                    WHERE TABLE_SCHEMA = '%s' AND TABLE_NAME = '%s' AND
                          CONSTRAINT_NAME = '%s'""" % \
-                   (schema_name, self.table.name, self.name)
-        rs = self.engine.execute(query)
+                   (self.table.schema.name, self.table.name, self.name)
+        rs = engine.execute(query)
         schema = self.table.schema
         for r in rs.fetchall():
             self.columns.append(self.table.column(r[0]))
@@ -125,32 +122,29 @@ class MySQLConstraint:
 
 
 class MySQLColumn:
-    def __init__(self, name, table, meta):
+    def __init__(self, name, table):
         self.table = table
-        self.meta = meta
         self.name = name
-        self.type = meta.type
-        self.nullable = meta.nullable
-        self.primary_key = meta.primary_key
-        self.default = meta.default
 
     def reflect(self, engine):
-        self.engine = engine
-
-        schema_name = os.path.basename(str(self.engine.url))
-        query = """SELECT COLUMN_COMMENT, COLUMN_DEFAULT, COLLATION_NAME, EXTRA
+        query = """SELECT COLUMN_DEFAULT, IS_NULLABLE, COLLATION_NAME,
+                          COLUMN_TYPE, COLUMN_KEY, EXTRA, COLUMN_COMMENT
                    FROM information_schema.Columns
                    WHERE TABLE_SCHEMA = '%s' AND
                          TABLE_NAME = '%s' AND
                          COLUMN_NAME = '%s'""" % \
-                   (schema_name, self.table.name, self.name)
-        rs = self.engine.execute(query)
+                   (self.table.schema.name, self.table.name, self.name)
+        rs = engine.execute(query)
         row = rs.fetchone()
-        comment = decode(row[0])
-        self.default = decode(row[1])
+        self.default = decode(row[0])
+        self.nullable = row[1]
         self.collation_name = row[2]
-        self.extra = row[3]
+        self.type = row[3]
+        self.primary_key = row[4] == 'PRI'
+        self.unique_key = row[4] == 'UNI'
+        self.extra = row[5]
 
+        comment = decode(row[6])
         match = re.match('^(.*?)(?:\(|¡Ê)(.*)(?:\)|¡Ë)\s*$', comment)
         if match:
             self.fullname = match.group(1)
@@ -170,8 +164,8 @@ class MySQLColumn:
             options.append(self.collation_name)
         if self.extra:
             options.append(self.extra)
-        if self.table.refkey(self.meta):
-            key = self.table.refkey(self.meta)
+        if self.table.refkey(self):
+            key = self.table.refkey(self)
             mesg = "Refer: %s" % key.references[0]
             options.append(mesg)
 
