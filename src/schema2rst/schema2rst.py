@@ -4,7 +4,7 @@ import os
 import sys
 import yaml
 import sqlalchemy
-from metadata import MySQLMetaData
+import inspectors
 from sphinx import SphinxDocGenerator
 
 
@@ -19,36 +19,32 @@ def main():
           (config['user'], config['passwd'], config['host'], config['db'])
     engine = sqlalchemy.create_engine(url)
 
-    m = MySQLMetaData()
-    m.reflect(engine)
+    insp = inspectors.create_inspector(engine)
 
     sphinx = SphinxDocGenerator()
     sphinx.header(u'Schema: %s' % config['db'])
 
-    for table in m.tables.values():
-        if table.fullname:
-            header = u"%s (%s)" % (table.fullname, table.name)
-            sphinx.header(header, '-')
-        else:
-            sphinx.header(table.name, '-')
+    for table in insp.get_table_names():
+        # FIXME: support fullname (table comment)
+        sphinx.header(table, '-')
 
         headers = ['Fullname', 'Name', 'Type', 'NOT NULL',
                    'PKey', 'Default', 'Comment']
         sphinx.listtable(headers)
 
-        for c in table.columns:
-            columns = [c.fullname, c.name, c.type, c.nullable,
-                       c.primary_key, c.default, c.doc]
+        for c in insp.get_columns(table):
+            columns = ['', c.get('name'), c.get('type'), c.get('nullable'),
+                       '', c.get('default'), '']
             sphinx.listtable_column(columns)
 
-        if table.keys:
+        indexes = insp.get_indexes(table)
+        if indexes:
             sphinx.header(u'Keys', '^')
-            for key in table.keys:
-                if key.type != 'FOREIGN KEY':
-                    keyinfo = "%s (%s): " % (key.name, key.type)
-                    keyinfo += ", ".join(c.name for c in key.columns)
-
-                    sphinx.list_item(keyinfo)
+            for index in indexes:
+                if index['unique']:
+                    string = "UNIQUE KEY: %s (%s)" % (index['name'], ', '.join(index['column_names']))
+                else:
+                    string = "KEY: %s (%s)" % (index['name'], ', '.join(index['column_names']))
 
 
 if __name__ == '__main__':
