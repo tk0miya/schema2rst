@@ -45,3 +45,6 @@ class SphinxDocGenerator:
                 self.out("   * - %s" % column)
             else:
                 self.out("     - %s" % column)
+
+    def list_item(self, item):
+        self.out("* %s" % item)

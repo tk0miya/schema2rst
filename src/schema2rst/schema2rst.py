@@ -41,6 +41,15 @@ def main():
                        c.primary_key, c.default, c.doc]
             sphinx.listtable_column(columns)
 
+        if table.keys:
+            sphinx.header(u'Keys', '^')
+            for key in table.keys:
+                if key.type != 'FOREIGN KEY':
+                    keyinfo = "%s (%s): " % (key.name, key.type)
+                    keyinfo += ", ".join(c.name for c in key.columns)
+
+                    sphinx.list_item(keyinfo)
+
 
 if __name__ == '__main__':
     main()
