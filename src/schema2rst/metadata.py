@@ -2,7 +2,6 @@
 
 import os
 import re
-import sqlalchemy
 
 
 def decode(string):
@@ -14,17 +13,22 @@ def decode(string):
 
 class MySQLMetaData:
     def __init__(self):
-        self.meta = sqlalchemy.MetaData()
         self.engine = None
         self.tables = {}
 
     def reflect(self, engine):
         self.name = os.path.basename(str(engine.url))
-        self.meta.reflect(engine)
 
-        for table_name in self.meta.tables:
-            table = MySQLTable(self, table_name)
-            self.tables[table_name] = table
+        query = """SELECT TABLE_NAME, TABLE_COMMENT
+                   FROM information_schema.Tables
+                   WHERE TABLE_SCHEMA = '%s'""" % self.name
+        rs = engine.execute(query)
+        for r in rs.fetchall():
+            name = decode(r[0])
+            fullname = decode(re.sub('(; )?InnoDB free.*$', '', r[1]))
+
+            table = MySQLTable(self, [name, fullname])
+            self.tables[name] = table
 
         for table_name in self.tables:
             self.tables[table_name].reflect(engine)
@@ -37,20 +41,24 @@ class MySQLMetaData:
 
 
 class MySQLTable:
-    def __init__(self, schema, name):
+    def __init__(self, schema, row):
         self.schema = schema
-        self.name = name
-        self.meta = schema.meta.tables[name]
+        self.name = row[0]
+        self.fullname = row[1]
         self.keys = []
         self.columns = []
 
     def reflect(self, engine):
-        for c in self.meta.columns:
-            column = MySQLColumn(c.name, self)
+        query = """SELECT COLUMN_NAME, COLUMN_DEFAULT, IS_NULLABLE,
+                          COLLATION_NAME, COLUMN_TYPE, COLUMN_KEY,
+                          EXTRA, COLUMN_COMMENT
+                   FROM information_schema.Columns
+                   WHERE TABLE_SCHEMA = '%s' AND TABLE_NAME = '%s'""" % \
+                   (self.schema.name, self.name)
+        rs = engine.execute(query)
+        for r in rs.fetchall():
+            column = MySQLColumn(self, r)
             self.columns.append(column)
-
-        for column in self.columns:
-            column.reflect(engine)
 
         query = """SELECT CONSTRAINT_NAME, CONSTRAINT_TYPE
                    FROM information_schema.table_constraints
@@ -61,22 +69,6 @@ class MySQLTable:
             key = MySQLConstraint(r[0], self, r[1])
             key.reflect(engine)
             self.keys.append(key)
-
-        query = """SELECT TABLE_COMMENT
-                   FROM information_schema.Tables
-                   WHERE TABLE_SCHEMA = '%s' AND TABLE_NAME = '%s'""" % \
-                   (self.schema.name, self.name)
-        rs = engine.execute(query)
-        row = rs.fetchone()
-        self.fullname = decode(re.sub('(; )?InnoDB free.*$', '', row[0]))
-
-    @property
-    def name(self):
-        return self.meta.name
-
-    @property
-    def fullname(self):
-        return self.fullname
 
     def column(self, column_name):
         if hasattr(column_name, 'name'):
@@ -122,29 +114,19 @@ class MySQLConstraint:
 
 
 class MySQLColumn:
-    def __init__(self, name, table):
+    def __init__(self, table, row):
         self.table = table
-        self.name = name
 
-    def reflect(self, engine):
-        query = """SELECT COLUMN_DEFAULT, IS_NULLABLE, COLLATION_NAME,
-                          COLUMN_TYPE, COLUMN_KEY, EXTRA, COLUMN_COMMENT
-                   FROM information_schema.Columns
-                   WHERE TABLE_SCHEMA = '%s' AND
-                         TABLE_NAME = '%s' AND
-                         COLUMN_NAME = '%s'""" % \
-                   (self.table.schema.name, self.table.name, self.name)
-        rs = engine.execute(query)
-        row = rs.fetchone()
-        self.default = decode(row[0])
-        self.nullable = row[1]
-        self.collation_name = row[2]
-        self.type = row[3]
-        self.primary_key = row[4] == 'PRI'
-        self.unique_key = row[4] == 'UNI'
-        self.extra = row[5]
+        self.name = row[0]
+        self.default = decode(row[1])
+        self.nullable = row[2]
+        self.collation_name = row[3]
+        self.type = row[4]
+        self.primary_key = row[5] == 'PRI'
+        self.unique_key = row[5] == 'UNI'
+        self.extra = row[6]
 
-        comment = decode(row[6])
+        comment = decode(row[7])
         match = re.match('^(.*?)(?:\(|¡Ê)(.*)(?:\)|¡Ë)\s*$', comment)
         if match:
             self.fullname = match.group(1)
