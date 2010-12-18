@@ -35,6 +35,7 @@ setup(
      install_requires=[
         'setuptools',
         'sqlalchemy',
+        'pyyaml',
          # -*- Extra requirements: -*-
      ],
      extras_require=dict(
