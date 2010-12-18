@@ -82,21 +82,21 @@ class MySQLColumn:
         rs = self.engine.execute(query)
         row = rs.fetchone()
         comment = decode(row[0])
-        self.default = decode(row[1])
-        self.collation_name = row[2]
-        self.extra = row[3]
+        self._default = decode(row[1])
+        self._collation_name = row[2]
+        self._extra = row[3]
 
         match = re.match('^(.*?)(?:\(|¡Ê)(.*)(?:\)|¡Ë)\s*$', comment)
         if match:
-            self.fullname = match.group(1)
-            self.comment = match.group(2)
+            self._fullname = match.group(1)
+            self._comment = match.group(2)
         else:
-            self.fullname = comment
-            self.comment = ''
+            self._fullname = comment
+            self._comment = ''
 
     @property
     def fullname(self):
-        return self.fullname or self.meta.name
+        return self._fullname or self.meta.name
 
     @property
     def name(self):
@@ -116,20 +116,20 @@ class MySQLColumn:
 
     @property
     def default(self):
-        return self.default
+        return self._default
 
     @property
     def doc(self):
         options = []
 
-        if self.collation_name and self.collation_name != 'utf8_general_ci':
-            options.append(self.collation_name)
-        if self.extra:
-            options.append(self.extra)
+        if self._collation_name and self._collation_name != 'utf8_general_ci':
+            options.append(self._collation_name)
+        if self._extra:
+            options.append(self._extra)
 
-        if self.comment and options:
+        if self._comment and options:
             return "%s (%s)" % (self.comment, ", ".join(options))
         elif options:
             return ", ".join(options)
         else:
-            return self.comment
+            return self._comment
