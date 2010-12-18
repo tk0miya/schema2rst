@@ -1,7 +1,15 @@
 # -*- coding: utf-8 -*-
 
 import os
+import re
 import sqlalchemy
+
+
+def decode(string):
+    if string:
+        return string.decode('utf-8')
+    else:
+        return string
 
 
 class MySQLMetaData:
@@ -60,8 +68,8 @@ class MySQLColumn:
                    (schema_name, self.meta.table.name, self.name)
         rs = self.engine.execute(query)
         row = rs.fetchone()
-        self.comment = row[0]
-        self.default = row[1]
+        self.comment = decode(row[0])
+        self.default = decode(row[1])
 
     @property
     def fullname(self):

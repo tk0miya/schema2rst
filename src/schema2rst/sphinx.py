@@ -21,7 +21,7 @@ class SphinxDocGenerator:
         self.output = output or sys.stdout
 
     def out(self, string):
-        self.output.write(str(string) + "\n")
+        self.output.write(string.encode('utf-8') + "\n")
 
     def header(self, string, char="="):
         self.out("")
@@ -42,6 +42,6 @@ class SphinxDocGenerator:
     def listtable_column(self, columns):
         for i, column in enumerate(columns):
             if i == 0:
-                self.out("   * - %s" % str(column))
+                self.out("   * - %s" % column)
             else:
-                self.out("     - %s" % str(column))
+                self.out("     - %s" % column)
