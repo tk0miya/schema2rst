@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
 import re
-import inspector
+import common
 
-class Inspector(inspector.Inspector):
+class Inspector(common.Inspector):
     def __init__(self, bind):
         super(Inspector, self).__init__(bind)
 
