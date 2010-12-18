@@ -4,7 +4,7 @@ import os
 import sys
 import yaml
 import sqlalchemy
-from metadata import MySQLMetaData
+import inspectors
 from sphinx import SphinxDocGenerator
 
 
@@ -19,8 +19,7 @@ def main():
           (config['user'], config['passwd'], config['host'], config['db'])
     engine = sqlalchemy.create_engine(url)
 
-    m = MySQLMetaData()
-    m.reflect(engine)
+    insp = inspectors.create_inspector(engine)
 
     sphinx = SphinxDocGenerator()
     sphinx.header(u'Schema: %s' % config['db'])
@@ -30,17 +29,16 @@ def main():
     sphinx.out("   digraph {")
     sphinx.out("      node [shape = box];")
 
-    for table in m.tables.values():
-        if table.fullname:
+    for table in insp.get_tables():
+        if table['fullname']:
             sphinx.out('      %s [label="%s\\n(%s)"];' % \
-                       (table.name, table.name, table.fullname))
+                       (table['name'], table['name'], table['fullname']))
         else:
-            sphinx.out('      %s;' % table.name)
+            sphinx.out('      %s;' % table['name'])
 
-        for key in table.keys:
-            if key.type == 'FOREIGN KEY':
-                sphinx.out('      %s -> %s;' % \
-                           (table.name, key.references[0].table.name))
+        for key in insp.get_foreign_keys(table['name']):
+            sphinx.out('      %s -> %s;' % \
+                       (table['name'], key['referred_table']))
 
     sphinx.out("   }")
 
