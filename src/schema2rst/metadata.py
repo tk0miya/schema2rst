@@ -68,13 +68,12 @@ class MySQLTable:
 class MySQLColumn:
     def __init__(self, meta):
         self.meta = meta
-        self.comment = None
 
     def reflect(self, engine):
         self.engine = engine
 
         schema_name = os.path.basename(str(self.engine.url))
-        query = """SELECT COLUMN_COMMENT, COLUMN_DEFAULT
+        query = """SELECT COLUMN_COMMENT, COLUMN_DEFAULT, COLLATION_NAME, EXTRA
                    FROM information_schema.Columns
                    WHERE TABLE_SCHEMA = '%s' AND
                          TABLE_NAME = '%s' AND
@@ -82,12 +81,22 @@ class MySQLColumn:
                    (schema_name, self.meta.table.name, self.name)
         rs = self.engine.execute(query)
         row = rs.fetchone()
-        self.comment = decode(row[0])
+        comment = decode(row[0])
         self.default = decode(row[1])
+        self.collation_name = row[2]
+        self.extra = row[3]
+
+        match = re.match('^(.*?)(?:\(|¡Ê)(.*)(?:\)|¡Ë)\s*$', comment)
+        if match:
+            self.fullname = match.group(1)
+            self.comment = match.group(2)
+        else:
+            self.fullname = comment
+            self.comment = ''
 
     @property
     def fullname(self):
-        return self.comment or self.meta.name
+        return self.fullname or self.meta.name
 
     @property
     def name(self):
@@ -111,4 +120,16 @@ class MySQLColumn:
 
     @property
     def doc(self):
-        return self.meta.doc or ""
+        options = []
+
+        if self.collation_name and self.collation_name != 'utf8_general_ci':
+            options.append(self.collation_name)
+        if self.extra:
+            options.append(self.extra)
+
+        if self.comment and options:
+            return "%s (%s)" % (self.comment, ", ".join(options))
+        elif options:
+            return ", ".join(options)
+        else:
+            return self.comment
