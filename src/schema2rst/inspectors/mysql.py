@@ -7,6 +7,7 @@ import common
 class Inspector(common.Inspector):
     def __init__(self, bind):
         super(Inspector, self).__init__(bind)
+        self.bind.execute('SET NAMES utf8')
 
     def get_tables(self, **kw):
         tables = super(Inspector, self).get_tables(**kw)
@@ -17,7 +18,7 @@ class Inspector(common.Inspector):
                        (self.default_schema_name, table['name'])
             r = self.bind.execute(query).fetchone()
 
-            table['fullname'] = self.decode(r[0])
+            table['fullname'] = re.sub('; Inno.*$', '', self.decode(r[0]))
 
         return tables
 
