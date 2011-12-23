@@ -20,7 +20,7 @@ classifiers = [
 setup(
      name='schema2rst',
      version=version,
-     description='schema2rst generates reST file from schema info',
+     description='schema2rst generates reST file from database schema',
      long_description=long_description,
      classifiers=classifiers,
      keywords=['document','generator'],
