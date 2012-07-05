@@ -18,7 +18,9 @@ class Inspector(common.Inspector):
                        (self.default_schema_name, table['name'])
             r = self.bind.execute(query).fetchone()
 
-            table['fullname'] = re.sub('; Inno.*$', '', self.decode(r[0]))
+            table['fullname'] = re.sub('; InnoDB free:.*$', '', self.decode(r[0]))
+            if table['fullname'].startswith('InnoDB free:'):
+                table['fullname'] = None
 
         return tables
 
