@@ -42,7 +42,7 @@ setup(
          test=[
              'Nose',
              'minimock',
-             'pep8',
+             'pep8>=1.3',
          ],
      ),
      test_suite='nose.collector',
