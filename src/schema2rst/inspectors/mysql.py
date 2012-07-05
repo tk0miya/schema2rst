@@ -18,8 +18,8 @@ class Inspector(common.Inspector):
                        (self.default_schema_name, table['name'])
             r = self.bind.execute(query).fetchone()
 
-            table['fullname'] = re.sub('; InnoDB free:.*$', '', self.decode(r[0]))
-            if table['fullname'].startswith('InnoDB free:'):
+            table['fullname'] = re.sub('; InnoDB.*$', '', self.decode(r[0]))
+            if table['fullname'].startswith('InnoDB'):
                 table['fullname'] = None
 
         return tables
@@ -49,8 +49,8 @@ class Inspector(common.Inspector):
             if extra:
                 options.append(extra)
 
-            if self.get_foreign_keys_for_column(table_name, column['name']):
-                fk = self.get_foreign_keys_for_column(table_name, column['name'])
+            fk = self.get_foreign_keys_for_column(table_name, column['name'])
+            if fk:
                 for key in fk:
                     for refcolumn in key['referred_columns']:
                         msg = "FK: %s.%s" % (key['referred_table'], refcolumn)
