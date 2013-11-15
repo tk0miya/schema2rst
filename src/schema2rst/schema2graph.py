@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import os
 import sys
 import yaml
 import sqlalchemy
@@ -31,13 +30,13 @@ def main():
 
     for table in insp.get_tables():
         if table['fullname']:
-            sphinx.out('      %s [label="%s\\n(%s)"];' % \
+            sphinx.out('      %s [label="%s\\n(%s)"];' %
                        (table['name'], table['name'], table['fullname']))
         else:
             sphinx.out('      %s;' % table['name'])
 
         for key in insp.get_foreign_keys(table['name']):
-            sphinx.out('      %s -> %s;' % \
+            sphinx.out('      %s -> %s;' %
                        (table['name'], key['referred_table']))
 
     sphinx.out("   }")

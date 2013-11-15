@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
 import os
 import sys
 import pep8
@@ -12,8 +13,6 @@ def test_pep8():
     arglist = [['statistics', True],
                ['show-source', True],
                ['repeat', True],
-               ['ignore', 'E501'],
-               ['exclude', ['gen-py', 'GAuth.py', 'ttypes.py', 'constants.py']],
                ['paths', [BASE_DIR]]]
 
     pep8style = pep8.StyleGuide(arglist, parse_argv=False, config_file=True)
@@ -26,7 +25,10 @@ def test_pep8():
         if not options.quiet:
             count_passed = done_d + done_s - count_failed
             print("%d passed and %d failed." % (count_passed, count_failed))
-            print("Test failed." if count_failed else "Test passed.")
+            if count_failed:
+                print("Test failed.")
+            else:
+                print("Test passed.")
         if count_failed:
             sys.exit(1)
     if options.testsuite:
@@ -41,11 +43,11 @@ def test_pep8():
     if report.total_errors:
         if options.count:
             sys.stderr.write(str(report.total_errors) + '\n')
-        sys.exit(1)
+        #sys.exit(1)
 
     # reporting errors (additional summary)
     errors = report.get_count('E')
     warnings = report.get_count('W')
     message = 'pep8: %d errors / %d warnings' % (errors, warnings)
-    print message
+    print(message)
     assert report.total_errors == 0, message
