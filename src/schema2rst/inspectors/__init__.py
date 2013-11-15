@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import common
-import mysql
+from schema2rst.inspectors import common, mysql
 
 
 def create_inspector(engine):

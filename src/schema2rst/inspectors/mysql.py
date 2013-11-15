@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import re
-import common
+from schema2rst.inspectors import common
 
 
 class Inspector(common.Inspector):
@@ -58,7 +58,7 @@ class Inspector(common.Inspector):
 
             comment = self.decode(r[3])
             extra_comment = ", ".join(options)
-            match = re.match('^(.*?)(?:\(|¡Ê)(.*)(?:\)|¡Ë)\s*$', comment)
+            match = re.match('^(.*?)(?:\(|ï¼ˆ)(.*)(?:\)|ï¼‰)\s*$', comment)
             if match:
                 column['fullname'] = match.group(1)
                 column['comment'] = match.group(2)

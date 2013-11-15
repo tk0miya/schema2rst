@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
+import io
 import sys
+import six
 import yaml
 import sqlalchemy
 import inspectors
@@ -12,7 +14,7 @@ def main():
         sys.stderr.write('Usage: schema2rst CONFIG_FILE\n')
         sys.exit(1)
 
-    config = yaml.load(file(sys.argv[1]))
+    config = yaml.load(io.open(sys.argv[1], encoding='utf-8'))
 
     url = 'mysql://%s:%s@%s/%s' % \
           (config['user'], config['passwd'], config['host'], config['db'])
@@ -21,7 +23,7 @@ def main():
     insp = inspectors.create_inspector(engine)
 
     sphinx = SphinxDocGenerator()
-    sphinx.header(u'Schema: %s' % config['db'])
+    sphinx.header(six.u('Schema: %s' % config['db']))
 
     for table in insp.get_tables():
         # FIXME: support fullname (table comment)
@@ -42,7 +44,7 @@ def main():
 
         indexes = insp.get_indexes(table['name'])
         if indexes:
-            sphinx.header(u'Keys', '^')
+            sphinx.header(six.u('Keys'), '^')
             for index in indexes:
                 if index['unique']:
                     format = "UNIQUE KEY: %s (%s)"

@@ -32,6 +32,7 @@ setup(
         'setuptools',
         'sqlalchemy',
         'pyyaml',
+        'six',
     ],
     extras_require=dict(
         test=[
