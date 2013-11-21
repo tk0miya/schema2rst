@@ -6,7 +6,7 @@ import six
 import yaml
 import sqlalchemy
 import inspectors
-from sphinx import SphinxDocGenerator
+from rst import RestructuredTextGenerator
 
 
 def main():
@@ -22,26 +22,26 @@ def main():
 
     insp = inspectors.create_inspector(engine)
 
-    sphinx = SphinxDocGenerator()
-    sphinx.header(six.u('Schema: %s' % config['db']))
+    doc = RestructuredTextGenerator()
+    doc.header(six.u('Schema: %s' % config['db']))
 
-    sphinx.out(".. graphviz::")
-    sphinx.out("")
-    sphinx.out("   digraph {")
-    sphinx.out("      node [shape = box];")
+    doc.out(".. graphviz::")
+    doc.out("")
+    doc.out("   digraph {")
+    doc.out("      node [shape = box];")
 
     for table in insp.get_tables():
         if table['fullname']:
-            sphinx.out('      %s [label="%s\\n(%s)"];' %
-                       (table['name'], table['name'], table['fullname']))
+            doc.out('      %s [label="%s\\n(%s)"];' %
+                    (table['name'], table['name'], table['fullname']))
         else:
-            sphinx.out('      %s;' % table['name'])
+            doc.out('      %s;' % table['name'])
 
         for key in insp.get_foreign_keys(table['name']):
-            sphinx.out('      %s -> %s;' %
-                       (table['name'], key['referred_table']))
+            doc.out('      %s -> %s;' %
+                    (table['name'], key['referred_table']))
 
-    sphinx.out("   }")
+    doc.out("   }")
 
 
 if __name__ == '__main__':

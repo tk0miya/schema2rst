@@ -17,7 +17,7 @@ def string_width(string):
     return width
 
 
-class SphinxDocGenerator:
+class RestructuredTextGenerator:
     def __init__(self, output=None):
         self.output = output or sys.stdout
 
