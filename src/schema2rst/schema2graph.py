@@ -4,7 +4,6 @@ import io
 import sys
 import six
 import yaml
-import sqlalchemy
 import inspectors
 from rst import RestructuredTextGenerator
 
@@ -18,9 +17,7 @@ def main():
 
     url = 'mysql://%s:%s@%s/%s' % \
           (config['user'], config['passwd'], config['host'], config['db'])
-    engine = sqlalchemy.create_engine(url)
-
-    insp = inspectors.create_inspector(engine)
+    insp = inspectors.create_for(url)
 
     doc = RestructuredTextGenerator()
     doc.header(six.u('Schema: %s' % config['db']))
