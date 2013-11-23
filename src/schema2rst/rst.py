@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import io
 import sys
 import six
 import unicodedata
@@ -19,23 +20,26 @@ def string_width(string):
 
 class RestructuredTextGenerator:
     def __init__(self, output=None):
-        self.output = output or sys.stdout
+        if output:
+            self.output = io.open(output, 'w', encoding='utf-8')
+        else:
+            self.output = sys.stdout
 
     def out(self, string):
-        self.output.write(string.encode('utf-8') + "\n")
+        self.output.write(string + six.u("\n"))
 
-    def header(self, string, char="="):
-        self.out("")
+    def header(self, string, char=six.u("=")):
+        self.out(six.u(""))
         self.out(string)
         self.out(char * string_width(string))
-        self.out("")
+        self.out(six.u(""))
 
     def listtable(self, header=None):
-        self.out(".. list-table::")
+        self.out(six.u(".. list-table::"))
         if header:
-            self.out("   :header-rows: 1")
+            self.out(six.u("   :header-rows: 1"))
 
-        self.out("")
+        self.out(six.u(""))
 
         if header:
             self.listtable_column(header)
@@ -43,9 +47,9 @@ class RestructuredTextGenerator:
     def listtable_column(self, columns):
         for i, column in enumerate(columns):
             if i == 0:
-                self.out("   * - %s" % column)
+                self.out(six.u("   * - %s") % column)
             else:
-                self.out("     - %s" % column)
+                self.out(six.u("     - %s") % column)
 
     def list_item(self, item):
-        self.out("* %s" % item)
+        self.out(six.u("* %s") % item)

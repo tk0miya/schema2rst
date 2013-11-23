@@ -4,28 +4,38 @@ import io
 import sys
 import six
 import yaml
+import optparse
 import inspectors
 from rst import RestructuredTextGenerator
 
 
-def main():
-    if len(sys.argv) != 2:
-        sys.stderr.write('Usage: schema2rst CONFIG_FILE\n')
-        sys.exit(1)
+def parse_option(args):
+    usage = 'Usage: schema2rst CONFIG_FILE'
+    parser = optparse.OptionParser(usage=usage)
+    parser.add_option('-o', '--output', action='store')
 
-    config = yaml.load(io.open(sys.argv[1], encoding='utf-8'))
+    options, args = parser.parse_args(args)
+    if len(args) != 1:
+        parser.print_usage()
+        sys.exit(0)
 
-    url = 'mysql://%s:%s@%s/%s' % \
-          (config['user'], config['passwd'], config['host'], config['db'])
-    insp = inspectors.create_for(url)
+    return options, args
 
-    doc = RestructuredTextGenerator()
+
+def main(args=sys.argv[1:]):
+    options, args = parse_option(args)
+
+    config = yaml.load(io.open(args[0], encoding='utf-8'))
+    insp = inspectors.create_for(config)
+
+    doc = RestructuredTextGenerator(options.output)
     doc.header(six.u('Schema: %s' % config['db']))
 
     for table in insp.get_tables():
         # FIXME: support fullname (table comment)
         if table['fullname']:
-            doc.header("%s (%s)" % (table['fullname'], table['name']), '-')
+            doc.header(six.u("%s (%s)") %
+                       (table['fullname'], table['name']), '-')
         else:
             doc.header(table['name'], '-')
 
@@ -44,14 +54,10 @@ def main():
             doc.header(six.u('Keys'), '^')
             for index in indexes:
                 if index['unique']:
-                    format = "UNIQUE KEY: %s (%s)"
+                    format = six.u("UNIQUE KEY: %s (%s)")
                 else:
-                    format = "KEY: %s (%s)"
+                    format = six.u("KEY: %s (%s)")
 
                 string = format % (index['name'],
                                    ', '.join(index['column_names']))
                 doc.list_item(string)
-
-
-if __name__ == '__main__':
-    main()
