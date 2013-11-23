@@ -15,7 +15,7 @@ def create_for(config):
                 config['host'], config['db']))
 
     engine = sqlalchemy.create_engine(url)
-    if engine.driver == 'mysqldb':
+    if engine.driver in ('mysqldb', 'pymysql'):
         return mysql.Inspector(engine)
     else:
         return common.Inspector(engine)

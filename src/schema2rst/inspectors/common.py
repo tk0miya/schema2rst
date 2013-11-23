@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import six
 from sqlalchemy.engine import reflection
 
 
@@ -8,8 +9,8 @@ class Inspector(reflection.Inspector):
         super(Inspector, self).__init__(bind)
 
     def decode(self, string):
-        if string:
-            return string.decode('utf-8')
+        if isinstance(string, six.binary_type):
+            return six.u(string)
         else:
             return string
 

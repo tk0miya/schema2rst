@@ -5,8 +5,8 @@ import sys
 import six
 import yaml
 import optparse
-import inspectors
-from rst import RestructuredTextGenerator
+from schema2rst import inspectors
+from schema2rst.rst import RestructuredTextGenerator
 
 
 def parse_option(args):
