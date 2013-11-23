@@ -24,7 +24,8 @@ class Inspector(reflection.Inspector):
         return tables
 
     def get_columns(self, table_name, **kw):
-        primary_keys = self.get_primary_keys(table_name)
+        constraints = self.get_pk_constraint(table_name)
+        primary_keys = constraints.get('constrained_columns')
         columns = super(Inspector, self).get_columns(table_name, **kw)
         for column in columns:
             column['fullname'] = column['name']
