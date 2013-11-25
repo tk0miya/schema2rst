@@ -2,7 +2,6 @@
 
 import io
 import sys
-import six
 import yaml
 import optparse
 from schema2rst import inspectors
@@ -29,12 +28,12 @@ def main(args=sys.argv[1:]):
     insp = inspectors.create_for(config)
 
     doc = RestructuredTextGenerator(options.output)
-    doc.header(six.u('Schema: %s' % config['db']))
+    doc.header('Schema: %s' % config['db'])
 
     for table in insp.get_tables():
         # FIXME: support fullname (table comment)
         if table['fullname']:
-            doc.header(six.u("%s (%s)") %
+            doc.header("%s (%s)" %
                        (table['fullname'], table['name']), '-')
         else:
             doc.header(table['name'], '-')
@@ -51,12 +50,12 @@ def main(args=sys.argv[1:]):
 
         indexes = insp.get_indexes(table['name'])
         if indexes:
-            doc.header(six.u('Keys'), '^')
+            doc.header('Keys', '^')
             for index in indexes:
                 if index['unique']:
-                    format = six.u("UNIQUE KEY: %s (%s)")
+                    format = "UNIQUE KEY: %s (%s)"
                 else:
-                    format = six.u("KEY: %s (%s)")
+                    format = "KEY: %s (%s)"
 
                 string = format % (index['name'],
                                    ', '.join(index['column_names']))

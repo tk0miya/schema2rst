@@ -2,7 +2,6 @@
 
 import io
 import sys
-import six
 import yaml
 import optparse
 from schema2rst import inspectors
@@ -29,22 +28,22 @@ def main(args=sys.argv[1:]):
     insp = inspectors.create_for(config)
 
     doc = RestructuredTextGenerator(options.output)
-    doc.header(six.u('Schema: %s' % config['db']))
+    doc.header('Schema: %s' % config['db'])
 
-    doc.out(six.u(".. graphviz::"))
-    doc.out(six.u(""))
-    doc.out(six.u("   digraph {"))
-    doc.out(six.u("      node [shape = box];"))
+    doc.out(".. graphviz::")
+    doc.out("")
+    doc.out("   digraph {")
+    doc.out("      node [shape = box];")
 
     for table in insp.get_tables():
         if table['fullname']:
-            doc.out(six.u('      %s [label="%s\\n(%s)"];') %
+            doc.out('      %s [label="%s\\n(%s)"];' %
                     (table['name'], table['name'], table['fullname']))
         else:
-            doc.out(six.u('      %s;') % table['name'])
+            doc.out('      %s;' % table['name'])
 
         for key in insp.get_foreign_keys(table['name']):
-            doc.out(six.u('      %s -> %s;') %
+            doc.out('      %s -> %s;' %
                     (table['name'], key['referred_table']))
 
-    doc.out(six.u("   }"))
+    doc.out("   }")
