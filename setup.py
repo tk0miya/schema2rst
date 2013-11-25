@@ -37,15 +37,15 @@ setup(
     extras_require=dict(
         test=[
             'Nose',
-            'minimock',
             'pep8>=1.3',
+            'testing.mysqld',
         ],
     ),
     test_suite='nose.collector',
     tests_require=[
         'Nose',
-        'minimock',
         'pep8>=1.3',
+        'testing.mysqld',
     ],
     entry_points="""
        [console_scripts]
