@@ -10,7 +10,7 @@ class Inspector(reflection.Inspector):
 
     def decode(self, string):
         if isinstance(string, six.binary_type):
-            return six.u(string)
+            return string.decode('utf-8')
         else:
             return string
 
