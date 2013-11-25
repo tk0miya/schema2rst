@@ -12,6 +12,7 @@ from schema2rst.commands import graph, rst
 
 class TestSchema2rst(unittest.TestCase):
     def setUp(self):
+        self.maxDiff = 65535
         self.mysqld = testing.mysqld.Mysqld(my_cnf={'skip-networking': None})
 
         param = self.mysqld.dsn()

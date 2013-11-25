@@ -19,28 +19,28 @@ Schema: test
    * - 商品 ID
      - id
      - int(11)
-     - False
+     - True
      - True
      - None
      - auto_increment
    * - 商品名
      - name
      - varchar(255)
-     - False
+     - True
      - False
      - None
      - latin1_swedish_ci
    * - 種別 
      - type
      - int(11)
-     - False
+     - True
      - False
      - '1'
      - 1:食品, 2:文具, 3:雑貨
    * - 説明文
      - description
      - text
-     - True
+     - False
      - False
      - None
      - latin1_swedish_ci
@@ -61,35 +61,35 @@ Schema: test
    * - 履歴 ID
      - id
      - int(11)
-     - False
+     - True
      - True
      - None
      - auto_increment
    * - ユーザ ID
      - user_id
      - int(11)
-     - False
+     - True
      - False
      - None
      - FK: users.id
    * - 商品 ID
      - item_id
      - int(11)
-     - False
+     - True
      - False
      - None
      - FK: items.id
    * - 数量
      - amount
      - int(11)
-     - False
+     - True
      - False
      - None
      - 
    * - 購入日
      - order_date
      - datetime
-     - True
+     - False
      - False
      - None
      - 
@@ -116,28 +116,28 @@ Keys
    * - ユーザ ID
      - id
      - int(11)
-     - False
+     - True
      - True
      - None
      - auto_increment
    * - ログイン ID
      - login_id
      - varchar(16)
-     - False
+     - True
      - False
      - ''
      - latin1_swedish_ci
    * - 氏名
      - fullname
      - varchar(255)
-     - False
+     - True
      - False
      - ''
      - latin1_swedish_ci
    * - メールアドレス
      - mailaddr
      - varchar(255)
-     - False
+     - True
      - False
      - ''
      - latin1_swedish_ci

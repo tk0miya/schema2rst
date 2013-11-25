@@ -44,7 +44,7 @@ def main(args=sys.argv[1:]):
 
         for c in insp.get_columns(table['name']):
             columns = [c.get('fullname'), c.get('name'), c.get('type'),
-                       c.get('nullable'), c.get('primary_key'),
+                       (not c.get('nullable')), c.get('primary_key'),
                        c.get('default'), c.get('comment')]
             doc.listtable_column(columns)
 

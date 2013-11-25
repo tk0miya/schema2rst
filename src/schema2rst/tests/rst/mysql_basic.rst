@@ -19,42 +19,42 @@ comments
    * - id
      - id
      - int(11)
-     - False
+     - True
      - True
      - None
      - auto_increment
    * - post_id
      - post_id
      - int(11)
-     - True
+     - False
      - False
      - None
      - FK: posts.id
    * - name
      - name
      - varchar(256)
-     - True
+     - False
      - False
      - None
      - latin1_swedish_ci
    * - email
      - email
      - varchar(256)
-     - True
+     - False
      - False
      - None
      - latin1_swedish_ci
    * - content
      - content
      - varchar(256)
-     - True
+     - False
      - False
      - None
      - latin1_swedish_ci
    * - created_at
      - created_at
      - datetime
-     - True
+     - False
      - False
      - None
      - 
@@ -80,28 +80,28 @@ posts
    * - id
      - id
      - int(11)
-     - False
+     - True
      - True
      - None
      - auto_increment
    * - title
      - title
      - varchar(256)
-     - True
+     - False
      - False
      - None
      - latin1_swedish_ci
    * - content
      - content
      - text
-     - True
+     - False
      - False
      - None
      - latin1_swedish_ci
    * - created_at
      - created_at
      - datetime
-     - True
+     - False
      - False
      - None
      - 
