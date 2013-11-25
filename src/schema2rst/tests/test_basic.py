@@ -34,8 +34,17 @@ class TestSchema2rst(unittest.TestCase):
         path = os.path.join(os.path.dirname(__file__), filename)
         return io.open(path, encoding='utf-8').read()
 
+    def create_engine(self):
+        url = self.mysqld.url()
+        if '?' in url:
+            url += '&charset=utf8'
+        else:
+            url += '?charset=utf8'
+
+        return sqlalchemy.create_engine(url)
+
     def test_basic(self):
-        engine = sqlalchemy.create_engine(self.mysqld.url())
+        engine = self.create_engine()
         engine.execute(self.readfile('schema/mysql_basic.sql'))
 
         try:
@@ -48,6 +57,24 @@ class TestSchema2rst(unittest.TestCase):
 
             graph.main(['-o', output, self.config.name])
             self.assertEqual(self.readfile('rst/mysql_basic_graph.rst'),
+                             io.open(output, encoding='utf-8').read())
+        finally:
+            os.unlink(output)
+
+    def test_with_comments(self):
+        engine = self.create_engine()
+        engine.execute(self.readfile('schema/mysql_comments.sql'))
+
+        try:
+            fd, output = tempfile.mkstemp()
+            os.close(fd)
+
+            rst.main(['-o', output, self.config.name])
+            self.assertEqual(self.readfile('rst/mysql_comments.rst'),
+                             io.open(output, encoding='utf-8').read())
+
+            graph.main(['-o', output, self.config.name])
+            self.assertEqual(self.readfile('rst/mysql_comments_graph.rst'),
                              io.open(output, encoding='utf-8').read())
         finally:
             os.unlink(output)
