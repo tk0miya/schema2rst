@@ -23,7 +23,7 @@ class RestructuredTextGenerator:
         if output:
             self.output = io.open(output, 'w', encoding='utf-8')
         else:
-            self.output = sys.stdout
+            self.output = io.open(sys.stdout.fileno(), 'w', encoding='utf-8')
 
     def out(self, string):
         self.output.write(string + six.u("\n"))
