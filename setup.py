@@ -49,7 +49,7 @@ setup(
     ],
     entry_points="""
        [console_scripts]
-       schema2rst = schema2rst.schema2rst:main
-       schema2graph = schema2rst.schema2graph:main
+       schema2rst = schema2rst.commands.rst:main
+       schema2graph = schema2rst.commands.graph:main
     """,
 )
