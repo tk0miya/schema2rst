@@ -60,16 +60,16 @@ class Inspector(common.Inspector):
             extra_comment = ", ".join(options)
             match = re.match('^(.*?)(?:\(|（)(.*)(?:\)|）)\s*$', comment)
             if match:
-                column['fullname'] = match.group(1)
-                column['comment'] = match.group(2)
+                column['fullname'] = match.group(1).strip()
+                column['comment'] = match.group(2).strip()
 
                 if extra_comment:
                     column['comment'] += " (%s)" % extra_comment
             elif comment:
-                column['fullname'] = comment
-                column['comment'] = extra_comment
+                column['fullname'] = comment.strip()
+                column['comment'] = extra_comment.strip()
             else:
                 column['fullname'] = column['name']
-                column['comment'] = extra_comment
+                column['comment'] = extra_comment.strip()
 
         return columns

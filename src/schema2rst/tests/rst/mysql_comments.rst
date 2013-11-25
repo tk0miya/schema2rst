@@ -30,7 +30,7 @@ Schema: test
      - False
      - None
      - latin1_swedish_ci
-   * - 種別 
+   * - 種別
      - type
      - int(11)
      - True
