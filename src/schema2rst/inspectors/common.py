@@ -17,7 +17,7 @@ class Inspector(reflection.Inspector):
     def get_tables(self, **kw):
         tables = []
         table_names = super(Inspector, self).get_table_names(**kw)
-        for table_name in table_names:
+        for table_name in sorted(table_names):
             table = {'name': table_name, 'fullname': ''}
             tables.append(table)
 

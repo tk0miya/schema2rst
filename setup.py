@@ -39,6 +39,7 @@ setup(
             'Nose',
             'pep8>=1.3',
             'testing.mysqld',
+            'testing.postgresql',
         ],
     ),
     test_suite='nose.collector',
@@ -46,6 +47,7 @@ setup(
         'Nose',
         'pep8>=1.3',
         'testing.mysqld',
+        'testing.postgresql',
     ],
     entry_points="""
        [console_scripts]

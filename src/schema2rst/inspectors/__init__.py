@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import sqlalchemy
-from schema2rst.inspectors import common, mysql
+from schema2rst.inspectors import common, mysql, pgsql
 
 
 def create_engine(config):
@@ -21,5 +21,7 @@ def create_engine(config):
 def create_for(engine):
     if engine.driver in ('mysqldb', 'pymysql'):
         return mysql.Inspector(engine)
+    elif engine.driver in ('psycopg2',):
+        return pgsql.Inspector(engine)
     else:
         return common.Inspector(engine)
