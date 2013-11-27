@@ -25,12 +25,20 @@ def main(args=sys.argv[1:]):
     options, args = parse_option(args)
 
     config = yaml.load(io.open(args[0], encoding='utf-8'))
-    insp = inspectors.create_for(config)
+    engine = inspectors.create_engine(config)
+    try:
+        inspector = inspectors.create_for(engine)
 
-    doc = RestructuredTextGenerator(options.output)
+        doc = RestructuredTextGenerator(options.output)
+        generate_doc(doc, inspector, config)
+    finally:
+        engine.dispose()
+
+
+def generate_doc(doc, inspector, config):
     doc.header('Schema: %s' % config['db'])
 
-    for table in insp.get_tables():
+    for table in inspector.get_tables():
         # FIXME: support fullname (table comment)
         if table['fullname']:
             doc.header("%s (%s)" %
@@ -42,13 +50,13 @@ def main(args=sys.argv[1:]):
                    'PKey', 'Default', 'Comment']
         doc.listtable(headers)
 
-        for c in insp.get_columns(table['name']):
+        for c in inspector.get_columns(table['name']):
             columns = [c.get('fullname'), c.get('name'), c.get('type'),
                        (not c.get('nullable')), c.get('primary_key'),
                        c.get('default'), c.get('comment')]
             doc.listtable_column(columns)
 
-        indexes = insp.get_indexes(table['name'])
+        indexes = inspector.get_indexes(table['name'])
         if indexes:
             doc.header('Keys', '^')
             for index in indexes:

@@ -4,17 +4,21 @@ import sqlalchemy
 from schema2rst.inspectors import common, mysql
 
 
-def create_for(config):
+def create_engine(config):
+    schema = config.get('type', 'mysql')
     if 'unix_socket' in config:
-        url = ('mysql://%s:%s@localhost/%s?unix_socket=%s' %
-               (config['user'], config['passwd'],
+        url = ('%s://%s:%s@localhost/%s?unix_socket=%s' %
+               (schema, config['user'], config['passwd'],
                 config['db'], config['unix_socket']))
     else:
-        url = ('mysql://%s:%s@%s/%s' %
-               (config['user'], config['passwd'],
-                config['host'], config['db']))
+        url = ('%s://%s:%s@%s:%d/%s' %
+               (schema, config['user'], config['passwd'],
+                config['host'], config['port'], config['db']))
 
-    engine = sqlalchemy.create_engine(url)
+    return sqlalchemy.create_engine(url)
+
+
+def create_for(engine):
     if engine.driver in ('mysqldb', 'pymysql'):
         return mysql.Inspector(engine)
     else:

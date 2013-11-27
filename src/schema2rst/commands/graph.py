@@ -25,9 +25,17 @@ def main(args=sys.argv[1:]):
     options, args = parse_option(args)
 
     config = yaml.load(io.open(args[0], encoding='utf-8'))
-    insp = inspectors.create_for(config)
+    engine = inspectors.create_engine(config)
+    try:
+        inspector = inspectors.create_for(engine)
 
-    doc = RestructuredTextGenerator(options.output)
+        doc = RestructuredTextGenerator(options.output)
+        generate_doc(doc, inspector, config)
+    finally:
+        engine.dispose()
+
+
+def generate_doc(doc, inspector, config):
     doc.header('Schema: %s' % config['db'])
 
     doc.out(".. graphviz::")
@@ -35,14 +43,14 @@ def main(args=sys.argv[1:]):
     doc.out("   digraph {")
     doc.out("      node [shape = box];")
 
-    for table in insp.get_tables():
+    for table in inspector.get_tables():
         if table['fullname']:
             doc.out('      %s [label="%s\\n(%s)"];' %
                     (table['name'], table['name'], table['fullname']))
         else:
             doc.out('      %s;' % table['name'])
 
-        for key in insp.get_foreign_keys(table['name']):
+        for key in inspector.get_foreign_keys(table['name']):
             doc.out('      %s -> %s;' %
                     (table['name'], key['referred_table']))
 
