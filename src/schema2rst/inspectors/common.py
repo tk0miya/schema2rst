@@ -8,12 +8,6 @@ class Inspector(reflection.Inspector):
     def __init__(self, bind):
         super(Inspector, self).__init__(bind)
 
-    def decode(self, string):
-        if isinstance(string, six.binary_type):
-            return string.decode('utf-8')
-        else:
-            return string
-
     def get_tables(self, **kw):
         tables = []
         table_names = super(Inspector, self).get_table_names(**kw)

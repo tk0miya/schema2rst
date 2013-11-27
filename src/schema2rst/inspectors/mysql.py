@@ -5,10 +5,6 @@ from schema2rst.inspectors import common
 
 
 class Inspector(common.Inspector):
-    def __init__(self, bind):
-        super(Inspector, self).__init__(bind)
-        self.bind.execute('SET NAMES utf8')
-
     def get_tables(self, **kw):
         tables = super(Inspector, self).get_tables(**kw)
         for table in tables:
@@ -18,7 +14,7 @@ class Inspector(common.Inspector):
                      (self.default_schema_name, table['name']))
             r = self.bind.execute(query).fetchone()
 
-            table['fullname'] = re.sub('; InnoDB.*$', '', self.decode(r[0]))
+            table['fullname'] = re.sub('; InnoDB.*$', '', r[0])
             if table['fullname'].startswith('InnoDB'):
                 table['fullname'] = None
 
@@ -38,14 +34,14 @@ class Inspector(common.Inspector):
                               COLUMN_NAME = '%s'""" %
                      (self.default_schema_name, table_name, column['name']))
             r = self.bind.execute(query).fetchone()
-            column['type'] = self.decode(r[0])
+            column['type'] = r[0]
 
             options = []
-            collation_name = self.decode(r[1])
+            collation_name = r[1]
             if collation_name and collation_name != 'utf8_general_ci':
                 options.append(collation_name)
 
-            extra = self.decode(r[2])
+            extra = r[2]
             if extra:
                 options.append(extra)
 
@@ -56,7 +52,7 @@ class Inspector(common.Inspector):
                         msg = "FK: %s.%s" % (key['referred_table'], refcolumn)
                         options.append(msg)
 
-            comment = self.decode(r[3])
+            comment = r[3]
             extra_comment = ", ".join(options)
             match = re.match('^(.*?)(?:\(|（)(.*)(?:\)|）)\s*$', comment)
             if match:
