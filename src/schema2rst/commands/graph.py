@@ -5,7 +5,7 @@ import sys
 import yaml
 import optparse
 from schema2rst import inspectors
-from schema2rst.rst import RestructuredTextGenerator
+from schema2rst.rstwriter import RestructuredTextWriter
 
 
 def parse_option(args):
@@ -29,7 +29,7 @@ def main(args=sys.argv[1:]):
     try:
         inspector = inspectors.create_for(engine)
 
-        doc = RestructuredTextGenerator(options.output)
+        doc = RestructuredTextWriter(options.output)
         generate_doc(doc, inspector, config)
     finally:
         engine.dispose()
@@ -38,20 +38,21 @@ def main(args=sys.argv[1:]):
 def generate_doc(doc, inspector, config):
     doc.header('Schema: %s' % config['db'])
 
-    doc.out(".. graphviz::")
-    doc.out("")
-    doc.out("   digraph {")
-    doc.out("      node [shape = box];")
+    doc.println(".. graphviz::")
+    doc.println("")
+    doc.println("   digraph {")
+    doc.println("      node [shape = box];")
 
     for table in inspector.get_tables():
         if table['fullname']:
-            doc.out('      %s [label="%s\\n(%s)"];' %
-                    (table['name'], table['name'], table['fullname']))
+            doc.println('      %s [label="%s\\n(%s)"];' %
+                        (table['name'], table['name'], table['fullname']))
         else:
-            doc.out('      %s;' % table['name'])
+            doc.println('      %s;' % table['name'])
 
         for key in inspector.get_foreign_keys(table['name']):
-            doc.out('      %s -> %s;' %
-                    (table['name'], key['referred_table']))
+            doc.println('      %s -> %s;' %
+                        (table['name'], key['referred_table']))
 
-    doc.out("   }")
+    doc.println("   }")
+    doc.close()

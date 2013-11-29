@@ -5,7 +5,7 @@ import sys
 import yaml
 import optparse
 from schema2rst import inspectors
-from schema2rst.rst import RestructuredTextGenerator
+from schema2rst.rstwriter import RestructuredTextWriter
 
 
 def parse_option(args):
@@ -29,7 +29,7 @@ def main(args=sys.argv[1:]):
     try:
         inspector = inspectors.create_for(engine)
 
-        doc = RestructuredTextGenerator(options.output)
+        doc = RestructuredTextWriter(options.output)
         generate_doc(doc, inspector, config)
     finally:
         engine.dispose()
