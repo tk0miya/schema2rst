@@ -51,6 +51,7 @@ setup(
     ],
     entry_points="""
        [console_scripts]
+       schemadump = schema2rst.commands.dump:main
        schema2rst = schema2rst.commands.rst:main
        schema2graph = schema2rst.commands.graph:main
     """,

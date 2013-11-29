@@ -1,0 +1,57 @@
+name: test
+tables:
+- columns:
+  - {comment: auto_increment, default: null, fullname: "\u5546\u54C1 ID", name: id,
+    nullable: false, primary_key: true, type: int(11)}
+  - {comment: latin1_swedish_ci, default: null, fullname: "\u5546\u54C1\u540D", name: name,
+    nullable: false, primary_key: false, type: varchar(255)}
+  - {comment: "1:\u98DF\u54C1, 2:\u6587\u5177, 3:\u96D1\u8CA8", default: '''1''',
+    fullname: "\u7A2E\u5225", name: type, nullable: false, primary_key: false, type: int(11)}
+  - {comment: latin1_swedish_ci, default: null, fullname: "\u8AAC\u660E\u6587", name: description,
+    nullable: true, primary_key: false, type: text}
+  foreign_keys: []
+  fullname: "\u5546\u54C1"
+  indexes: []
+  name: items
+- columns:
+  - {comment: auto_increment, default: null, fullname: "\u5C65\u6B74 ID", name: id,
+    nullable: false, primary_key: true, type: int(11)}
+  - {comment: 'FK: users.id', default: null, fullname: "\u30E6\u30FC\u30B6 ID", name: user_id,
+    nullable: false, primary_key: false, type: int(11)}
+  - {comment: 'FK: items.id', default: null, fullname: "\u5546\u54C1 ID", name: item_id,
+    nullable: false, primary_key: false, type: int(11)}
+  - {comment: '', default: null, fullname: "\u6570\u91CF", name: amount, nullable: false,
+    primary_key: false, type: int(11)}
+  - {comment: '', default: null, fullname: "\u8CFC\u5165\u65E5", name: order_date,
+    nullable: true, primary_key: false, type: datetime}
+  foreign_keys:
+  - {referred_table: users}
+  - {referred_table: items}
+  fullname: "\u8CFC\u5165\u5C65\u6B74"
+  indexes:
+  - column_names: [user_id, order_date]
+    name: user_id
+    unique: false
+  - column_names: [item_id, order_date]
+    name: item_id
+    unique: false
+  name: order_history
+- columns:
+  - {comment: auto_increment, default: null, fullname: "\u30E6\u30FC\u30B6 ID", name: id,
+    nullable: false, primary_key: true, type: int(11)}
+  - {comment: latin1_swedish_ci, default: '''''', fullname: "\u30ED\u30B0\u30A4\u30F3\
+      \ ID", name: login_id, nullable: false, primary_key: false, type: varchar(16)}
+  - {comment: latin1_swedish_ci, default: '''''', fullname: "\u6C0F\u540D", name: fullname,
+    nullable: false, primary_key: false, type: varchar(255)}
+  - {comment: latin1_swedish_ci, default: '''''', fullname: "\u30E1\u30FC\u30EB\u30A2\
+      \u30C9\u30EC\u30B9", name: mailaddr, nullable: false, primary_key: false, type: varchar(255)}
+  foreign_keys: []
+  fullname: "\u30E6\u30FC\u30B6"
+  indexes:
+  - column_names: [mailaddr]
+    name: mailaddr
+    unique: true
+  - column_names: [mailaddr]
+    name: mailaddr_2
+    unique: false
+  name: users

@@ -1,0 +1,36 @@
+name: test
+tables:
+- columns:
+  - {comment: auto_increment, default: null, fullname: id, name: id, nullable: false,
+    primary_key: true, type: int(11)}
+  - {comment: 'FK: posts.id', default: null, fullname: post_id, name: post_id, nullable: true,
+    primary_key: false, type: int(11)}
+  - {comment: latin1_swedish_ci, default: null, fullname: name, name: name, nullable: true,
+    primary_key: false, type: varchar(256)}
+  - {comment: latin1_swedish_ci, default: null, fullname: email, name: email, nullable: true,
+    primary_key: false, type: varchar(256)}
+  - {comment: latin1_swedish_ci, default: null, fullname: content, name: content,
+    nullable: true, primary_key: false, type: varchar(256)}
+  - {comment: '', default: null, fullname: created_at, name: created_at, nullable: true,
+    primary_key: false, type: datetime}
+  foreign_keys:
+  - {referred_table: posts}
+  fullname: ''
+  indexes:
+  - column_names: [post_id]
+    name: post_id
+    unique: false
+  name: comments
+- columns:
+  - {comment: auto_increment, default: null, fullname: id, name: id, nullable: false,
+    primary_key: true, type: int(11)}
+  - {comment: latin1_swedish_ci, default: null, fullname: title, name: title, nullable: true,
+    primary_key: false, type: varchar(256)}
+  - {comment: latin1_swedish_ci, default: null, fullname: content, name: content,
+    nullable: true, primary_key: false, type: text}
+  - {comment: '', default: null, fullname: created_at, name: created_at, nullable: true,
+    primary_key: false, type: datetime}
+  foreign_keys: []
+  fullname: ''
+  indexes: []
+  name: posts
