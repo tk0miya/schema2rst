@@ -106,7 +106,8 @@ class SimpleInspector(Inspector):
 
             table['foreign_keys'] = []
             for fkey in self.get_foreign_keys(table_name):
-                metadata = dict(referred_table=fkey['referred_table'])
+                metadata = dict(name=fkey['name'],
+                                referred_table=fkey['referred_table'])
                 table['foreign_keys'].append(metadata)
 
             ret['tables'].append(table)

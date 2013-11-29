@@ -14,7 +14,7 @@ tables:
   - {comment: '', default: null, fullname: created_at, name: created_at, nullable: true,
     primary_key: false, type: datetime}
   foreign_keys:
-  - {referred_table: posts}
+  - {name: comments_ibfk_1, referred_table: posts}
   fullname: ''
   indexes:
   - column_names: [post_id]

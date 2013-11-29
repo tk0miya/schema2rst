@@ -25,8 +25,8 @@ tables:
   - {comment: '', default: null, fullname: "\u8CFC\u5165\u65E5", name: order_date,
     nullable: true, primary_key: false, type: datetime}
   foreign_keys:
-  - {referred_table: users}
-  - {referred_table: items}
+  - {name: order_history_ibfk_1, referred_table: users}
+  - {name: order_history_ibfk_2, referred_table: items}
   fullname: "\u8CFC\u5165\u5C65\u6B74"
   indexes:
   - column_names: [item_id, order_date]
