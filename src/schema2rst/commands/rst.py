@@ -25,11 +25,15 @@ def parse_option(args):
     usage = 'Usage: schema2rst CONFIG_FILE'
     parser = optparse.OptionParser(usage=usage)
     parser.add_option('-c', '--config', action='store')
+    parser.add_option('-d', '--datafile', action='store')
     parser.add_option('-o', '--output', action='store')
 
     options, args = parser.parse_args(args)
-    if options.config is None:
-        parser.error('--config (-c) is required')
+    if options.config is None and options.datafile is None:
+        parser.error('--config (-c) or --datafile (-d) is required')
+
+    if options.config and options.datafile:
+        parser.error('Specify either --config (-c) or --datafile (-d)')
 
     return options, args
 
@@ -37,15 +41,18 @@ def parse_option(args):
 def main(args=sys.argv[1:]):
     options, args = parse_option(args)
 
-    config = yaml.load(io.open(args[0], encoding='utf-8'))
-    engine = inspectors.create_engine(config)
-    try:
-        schema = inspectors.create_for(engine).dump()
+    if options.datafile:
+        schema = yaml.safe_load(open(options.datafile))
+    else:
+        try:
+            config = yaml.load(io.open(options.config, encoding='utf-8'))
+            engine = inspectors.create_engine(config)
+            schema = inspectors.create_for(engine).dump()
+        finally:
+            engine.dispose()
 
-        doc = RestructuredTextWriter(options.output)
-        generate_doc(doc, schema)
-    finally:
-        engine.dispose()
+    doc = RestructuredTextWriter(options.output)
+    generate_doc(doc, schema)
 
 
 def generate_doc(doc, schema):

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import sys
 from setuptools import setup, find_packages
 
 version = '0.1.0'
@@ -12,6 +13,17 @@ classifiers = [
     "Topic :: Software Development",
     "Topic :: Software Development :: Documentation",
 ]
+
+tests_requires = [
+    'nose',
+    'mock',
+    'pep8>=1.3',
+    'testing.mysqld',
+    'testing.postgresql',
+]
+
+if sys.version_info < (2, 7):
+    tests_requires.append('unittest2')
 
 setup(
     name='schema2rst',
@@ -35,20 +47,10 @@ setup(
         'six',
     ],
     extras_require=dict(
-        test=[
-            'Nose',
-            'pep8>=1.3',
-            'testing.mysqld',
-            'testing.postgresql',
-        ],
+        test=tests_requires,
     ),
     test_suite='nose.collector',
-    tests_require=[
-        'Nose',
-        'pep8>=1.3',
-        'testing.mysqld',
-        'testing.postgresql',
-    ],
+    tests_require=tests_requires,
     entry_points="""
        [console_scripts]
        schemadump = schema2rst.commands.dump:main
