@@ -44,11 +44,11 @@ class TestSchema2rst(unittest.TestCase):
             fd, output = tempfile.mkstemp()
             os.close(fd)
 
-            rst.main(['-o', output, self.config.name])
+            rst.main(['-c', self.config.name, '-o', output])
             self.assertEqual(self.readfile('rst/pgsql_basic.rst'),
                              io.open(output, encoding='utf-8').read())
 
-            graph.main(['-o', output, self.config.name])
+            graph.main(['-c', self.config.name, '-o', output])
             self.assertEqual(self.readfile('rst/pgsql_basic_graph.rst'),
                              io.open(output, encoding='utf-8').read())
         finally:
@@ -65,11 +65,11 @@ class TestSchema2rst(unittest.TestCase):
             fd, output = tempfile.mkstemp()
             os.close(fd)
 
-            rst.main(['-o', output, self.config.name])
+            rst.main(['-c', self.config.name, '-o', output])
             self.assertEqual(self.readfile('rst/pgsql_comments.rst'),
                              io.open(output, encoding='utf-8').read())
 
-            graph.main(['-o', output, self.config.name])
+            graph.main(['-c', self.config.name, '-o', output])
             self.assertEqual(self.readfile('rst/pgsql_comments_graph.rst'),
                              io.open(output, encoding='utf-8').read())
         finally:

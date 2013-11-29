@@ -31,8 +31,6 @@ def parse_option(args):
 
     if options.config is None:
         parser.error('--config (-c) is required')
-        parser.print_usage()
-        sys.exit(0)
 
     return options, args
 

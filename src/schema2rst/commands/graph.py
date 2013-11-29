@@ -24,12 +24,12 @@ from schema2rst.rstwriter import RestructuredTextWriter
 def parse_option(args):
     usage = 'Usage: schema2graph CONFIG_FILE'
     parser = optparse.OptionParser(usage=usage)
+    parser.add_option('-c', '--config', action='store')
     parser.add_option('-o', '--output', action='store')
 
     options, args = parser.parse_args(args)
-    if len(args) != 1:
-        parser.print_usage()
-        sys.exit(0)
+    if options.config is None:
+        parser.error('--config (-c) is required')
 
     return options, args
 
@@ -37,7 +37,7 @@ def parse_option(args):
 def main(args=sys.argv[1:]):
     options, args = parse_option(args)
 
-    config = yaml.load(io.open(args[0], encoding='utf-8'))
+    config = yaml.load(io.open(options.config, encoding='utf-8'))
     engine = inspectors.create_engine(config)
     try:
         schema = inspectors.create_for(engine).dump()
