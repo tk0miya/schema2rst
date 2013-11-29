@@ -13,7 +13,26 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+import re
 from sqlalchemy.engine.reflection import Inspector
+
+
+class Column(dict):
+    def set_comment(self, comment, options=[]):
+        extra_comment = ", ".join(options)
+        match = re.match('^(.*?)(?:\(|（)(.*)(?:\)|）)\s*$', comment)
+        if match:
+            self['fullname'] = match.group(1).strip()
+            self['comment'] = match.group(2).strip()
+
+            if extra_comment:
+                self['comment'] += " (%s)" % extra_comment
+        elif comment:
+            self['fullname'] = comment.strip()
+            self['comment'] = extra_comment.strip()
+        else:
+            self['fullname'] = self['name']
+            self['comment'] = extra_comment.strip()
 
 
 class SimpleInspector(Inspector):
@@ -33,6 +52,10 @@ class SimpleInspector(Inspector):
         constraints = self.get_pk_constraint(table_name)
         primary_keys = constraints.get('constrained_columns')
         columns = super(SimpleInspector, self).get_columns(table_name, **kw)
+
+        # wrap column objects in Column class
+        columns = [Column(c) for c in columns]
+
         for column in columns:
             column['fullname'] = column['name']
             column['comment'] = ''

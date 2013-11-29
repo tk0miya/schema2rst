@@ -65,20 +65,6 @@ class MySQLInspector(SimpleInspector):
                         msg = "FK: %s.%s" % (key['referred_table'], refcolumn)
                         options.append(msg)
 
-            comment = r[3]
-            extra_comment = ", ".join(options)
-            match = re.match('^(.*?)(?:\(|（)(.*)(?:\)|）)\s*$', comment)
-            if match:
-                column['fullname'] = match.group(1).strip()
-                column['comment'] = match.group(2).strip()
-
-                if extra_comment:
-                    column['comment'] += " (%s)" % extra_comment
-            elif comment:
-                column['fullname'] = comment.strip()
-                column['comment'] = extra_comment.strip()
-            else:
-                column['fullname'] = column['name']
-                column['comment'] = extra_comment.strip()
+            column.set_comment(r[3], options)
 
         return columns
