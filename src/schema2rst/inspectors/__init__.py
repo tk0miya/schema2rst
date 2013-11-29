@@ -14,7 +14,6 @@
 #  limitations under the License.
 
 import sqlalchemy
-from schema2rst.inspectors import common, mysql, pgsql
 
 
 def create_engine(config):
@@ -39,8 +38,11 @@ def create_engine(config):
 
 def create_for(engine):
     if engine.driver in ('mysqldb', 'pymysql'):
-        return mysql.Inspector(engine)
+        from schema2rst.inspectors.mysql import MySQLInspector
+        return MySQLInspector(engine)
     elif engine.driver in ('psycopg2',):
-        return pgsql.Inspector(engine)
+        from schema2rst.inspectors.pgsql import PgSQLInspector
+        return PgSQLInspector(engine)
     else:
-        return common.Inspector(engine)
+        from schema2rst.inspectors.base import SimpleInspector
+        return SimpleInspector(engine)

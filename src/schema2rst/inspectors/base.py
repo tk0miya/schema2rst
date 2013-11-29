@@ -13,16 +13,16 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from sqlalchemy.engine import reflection
+from sqlalchemy.engine.reflection import Inspector
 
 
-class Inspector(reflection.Inspector):
+class SimpleInspector(Inspector):
     def __init__(self, bind):
-        super(Inspector, self).__init__(bind)
+        super(SimpleInspector, self).__init__(bind)
 
     def get_tables(self, **kw):
         tables = []
-        table_names = super(Inspector, self).get_table_names(**kw)
+        table_names = super(SimpleInspector, self).get_table_names(**kw)
         for table_name in sorted(table_names):
             table = {'name': table_name, 'fullname': ''}
             tables.append(table)
@@ -32,7 +32,7 @@ class Inspector(reflection.Inspector):
     def get_columns(self, table_name, **kw):
         constraints = self.get_pk_constraint(table_name)
         primary_keys = constraints.get('constrained_columns')
-        columns = super(Inspector, self).get_columns(table_name, **kw)
+        columns = super(SimpleInspector, self).get_columns(table_name, **kw)
         for column in columns:
             column['fullname'] = column['name']
             column['comment'] = ''

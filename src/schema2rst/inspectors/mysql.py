@@ -14,12 +14,12 @@
 #  limitations under the License.
 
 import re
-from schema2rst.inspectors import common
+from schema2rst.inspectors.base import SimpleInspector
 
 
-class Inspector(common.Inspector):
+class MySQLInspector(SimpleInspector):
     def get_tables(self, **kw):
-        tables = super(Inspector, self).get_tables(**kw)
+        tables = super(MySQLInspector, self).get_tables(**kw)
         for table in tables:
             query = ("""SELECT TABLE_COMMENT
                         FROM information_schema.Tables
@@ -38,7 +38,7 @@ class Inspector(common.Inspector):
         return [k for k in fk if column_name in k['constrained_columns']]
 
     def get_columns(self, table_name, **kw):
-        columns = super(Inspector, self).get_columns(table_name, **kw)
+        columns = super(MySQLInspector, self).get_columns(table_name, **kw)
         for column in columns:
             query = ("""SELECT COLUMN_TYPE, COLLATION_NAME,
                                EXTRA, COLUMN_COMMENT

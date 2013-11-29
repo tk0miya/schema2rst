@@ -14,10 +14,10 @@
 #  limitations under the License.
 
 import re
-from schema2rst.inspectors import common
+from schema2rst.inspectors.base import SimpleInspector
 
 
-class Inspector(common.Inspector):
+class PgSQLInspector(SimpleInspector):
     def get_tables(self):
         query = ("""SELECT c.relname, obj_description(c.oid, 'pg_class')
                     FROM pg_class c
@@ -26,7 +26,7 @@ class Inspector(common.Inspector):
                  self.default_schema_name)
         fullnames = dict(self.bind.execute(query).fetchall())
 
-        tables = super(Inspector, self).get_tables()
+        tables = super(PgSQLInspector, self).get_tables()
         for table in tables:
             table['fullname'] = fullnames.get(table['name'])
 
@@ -48,7 +48,7 @@ class Inspector(common.Inspector):
                  (self.default_schema_name, table_name))
         comments = dict(self.bind.execute(query).fetchall())
 
-        columns = super(Inspector, self).get_columns(table_name, **kw)
+        columns = super(PgSQLInspector, self).get_columns(table_name, **kw)
         for column in columns:
             options = []
 
