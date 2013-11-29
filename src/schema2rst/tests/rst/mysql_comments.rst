@@ -97,8 +97,8 @@ Schema: test
 Keys
 ^^^^
 
-* KEY: user_id (user_id, order_date)
 * KEY: item_id (item_id, order_date)
+* KEY: user_id (user_id, order_date)
 
 ユーザ (users)
 --------------

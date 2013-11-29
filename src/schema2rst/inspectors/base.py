@@ -48,6 +48,14 @@ class SimpleInspector(Inspector):
 
         return tables
 
+    def get_indexes(self, table_name):
+        indexes = super(SimpleInspector, self).get_indexes(table_name)
+        return sorted(indexes, key=lambda idx: idx['name'])
+
+    def get_foreign_keys(self, table_name):
+        fkeys = super(SimpleInspector, self).get_foreign_keys(table_name)
+        return sorted(fkeys, key=lambda key: key['name'])
+
     def get_columns(self, table_name, **kw):
         constraints = self.get_pk_constraint(table_name)
         primary_keys = constraints.get('constrained_columns')
