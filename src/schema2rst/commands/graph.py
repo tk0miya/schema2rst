@@ -40,30 +40,30 @@ def main(args=sys.argv[1:]):
     config = yaml.load(io.open(args[0], encoding='utf-8'))
     engine = inspectors.create_engine(config)
     try:
-        inspector = inspectors.create_for(engine)
+        schema = inspectors.create_for(engine).dump()
 
         doc = RestructuredTextWriter(options.output)
-        generate_doc(doc, inspector, config)
+        generate_doc(doc, schema)
     finally:
         engine.dispose()
 
 
-def generate_doc(doc, inspector, config):
-    doc.header('Schema: %s' % config['db'])
+def generate_doc(doc, schema):
+    doc.header('Schema: %s' % schema['name'])
 
     doc.println(".. graphviz::")
     doc.println("")
     doc.println("   digraph {")
     doc.println("      node [shape = box];")
 
-    for table in inspector.get_tables():
+    for table in schema['tables']:
         if table['fullname']:
             doc.println('      %s [label="%s\\n(%s)"];' %
                         (table['name'], table['name'], table['fullname']))
         else:
             doc.println('      %s;' % table['name'])
 
-        for key in inspector.get_foreign_keys(table['name']):
+        for key in table['foreign_keys']:
             doc.println('      %s -> %s;' %
                         (table['name'], key['referred_table']))
 

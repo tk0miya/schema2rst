@@ -40,18 +40,18 @@ def main(args=sys.argv[1:]):
     config = yaml.load(io.open(args[0], encoding='utf-8'))
     engine = inspectors.create_engine(config)
     try:
-        inspector = inspectors.create_for(engine)
+        schema = inspectors.create_for(engine).dump()
 
         doc = RestructuredTextWriter(options.output)
-        generate_doc(doc, inspector, config)
+        generate_doc(doc, schema)
     finally:
         engine.dispose()
 
 
-def generate_doc(doc, inspector, config):
-    doc.header('Schema: %s' % config['db'])
+def generate_doc(doc, schema):
+    doc.header('Schema: %s' % schema['name'])
 
-    for table in inspector.get_tables():
+    for table in schema['tables']:
         # FIXME: support fullname (table comment)
         if table['fullname']:
             doc.header("%s (%s)" %
@@ -63,16 +63,15 @@ def generate_doc(doc, inspector, config):
                    'PKey', 'Default', 'Comment']
         doc.listtable(headers)
 
-        for c in inspector.get_columns(table['name']):
+        for c in table['columns']:
             columns = [c.get('fullname'), c.get('name'), c.get('type'),
                        (not c.get('nullable')), c.get('primary_key'),
                        c.get('default'), c.get('comment')]
             doc.listtable_column(columns)
 
-        indexes = inspector.get_indexes(table['name'])
-        if indexes:
+        if table['indexes']:
             doc.header('Keys', '^')
-            for index in indexes:
+            for index in table['indexes']:
                 if index['unique']:
                     format = "UNIQUE KEY: %s (%s)"
                 else:

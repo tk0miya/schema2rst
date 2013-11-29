@@ -66,3 +66,35 @@ class SimpleInspector(Inspector):
                 column['primary_key'] = False
 
         return columns
+
+    def dump(self):
+        ret = dict(name=self.engine.url.database, tables=[])
+        for table in self.get_tables():
+            table_name = table['name']
+
+            table['columns'] = []
+            for column in self.get_columns(table_name):
+                metadata = dict(fullname=column['fullname'],
+                                name=column['name'],
+                                type=column['type'],
+                                nullable=column['nullable'],
+                                primary_key=column['primary_key'],
+                                default=column['default'],
+                                comment=column['comment'])
+                table['columns'].append(metadata)
+
+            table['indexes'] = []
+            for index in self.get_indexes(table_name):
+                metadata = dict(name=index['name'],
+                                unique=index['unique'],
+                                column_names=index['column_names'])
+                table['indexes'].append(metadata)
+
+            table['foreign_keys'] = []
+            for fkey in self.get_foreign_keys(table_name):
+                metadata = dict(referred_table=fkey['referred_table'])
+                table['foreign_keys'].append(metadata)
+
+            ret['tables'].append(table)
+
+        return ret
