@@ -59,6 +59,7 @@ class SimpleInspector(Inspector):
     def get_columns(self, table_name, **kw):
         constraints = self.get_pk_constraint(table_name)
         primary_keys = constraints.get('constrained_columns')
+        foreign_keys = self.get_foreign_keys(table_name)
         columns = super(SimpleInspector, self).get_columns(table_name, **kw)
 
         # wrap column objects in Column class
@@ -72,6 +73,11 @@ class SimpleInspector(Inspector):
                 column['primary_key'] = True
             else:
                 column['primary_key'] = False
+
+            column['foreign_keys'] = []
+            for key in foreign_keys:
+                if column['name'] in key['constrained_columns']:
+                    column['foreign_keys'].append(key)
 
         return columns
 
