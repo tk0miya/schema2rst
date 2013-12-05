@@ -2,14 +2,20 @@
 
 import io
 import os
-import unittest
 import tempfile
 import sqlalchemy
 import testing.mysqld
 
 from schema2rst.commands import dump
 
+import sys
+if sys.version_info < (2, 7):
+    import unittest2 as unittest
+else:
+    import unittest
 
+
+@testing.mysqld.skipIfNotInstalled
 class TestSchemadump(unittest.TestCase):
     def setUp(self):
         self.maxDiff = 65535

@@ -18,8 +18,8 @@ tests_requires = [
     'nose',
     'mock',
     'pep8>=1.3',
-    'testing.mysqld',
-    'testing.postgresql',
+    'testing.mysqld>=1.2.1',
+    'testing.postgresql>=1.0.1',
 ]
 
 if sys.version_info < (2, 7):
