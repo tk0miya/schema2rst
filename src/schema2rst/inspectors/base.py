@@ -20,7 +20,7 @@ from sqlalchemy.engine.reflection import Inspector
 class Column(dict):
     def set_comment(self, comment, options=[]):
         extra_comment = ", ".join(options)
-        match = re.match('^(.*?)(?:\(|（)(.*)(?:\)|）)\s*$', comment)
+        match = re.match('^(.*?)(?:[(（](.*)[)）])\s*$', comment)
         if match:
             self['fullname'] = match.group(1).strip()
             self['comment'] = match.group(2).strip()
