@@ -43,6 +43,9 @@ tables:
       \ ID", name: login_id, nullable: false, primary_key: false, type: varchar(16)}
   - {comment: latin1_swedish_ci, default: '''''', fullname: "\u6C0F\u540D", name: fullname,
     nullable: false, primary_key: false, type: varchar(255)}
+  - {comment: "0:\u4E0D\u660E, 1:\u7537\u6027, 2:\u5973\u6027, 9:\u305D\u306E\u4ED6",
+    default: '''0''', fullname: "\u6027\u5225", name: sex, nullable: false, primary_key: false,
+    type: int(11)}
   - {comment: latin1_swedish_ci, default: '''''', fullname: "\u30E1\u30FC\u30EB\u30A2\
       \u30C9\u30EC\u30B9", name: mailaddr, nullable: false, primary_key: false, type: varchar(255)}
   foreign_keys: []

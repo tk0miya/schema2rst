@@ -2,6 +2,7 @@ CREATE TABLE users (
   id int primary key auto_increment comment 'ユーザ ID',
   login_id varchar(16) default '' not null comment 'ログイン ID',
   fullname varchar(255) default '' not null comment '氏名',
+  sex int not null default 0 not null comment '性別	0:不明, 1:男性, 2:女性, 9:その他',
   mailaddr varchar(255) default '' not null unique comment 'メールアドレス',
   key (mailaddr)
 ) ENGINE='InnoDB' COMMENT 'ユーザ';

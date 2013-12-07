@@ -2,6 +2,7 @@ CREATE TABLE users (
   id serial primary key,
   login_id varchar(16) default '' not null,
   fullname varchar(255) default '' not null,
+  sex int not null default 0 not null,
   mailaddr varchar(255) default '' not null unique
 );
 CREATE INDEX mailaddr_key ON users(mailaddr);
@@ -9,6 +10,7 @@ COMMENT ON TABLE users IS 'ユーザ';
 COMMENT ON COLUMN users.id IS 'ユーザ ID';
 COMMENT ON COLUMN users.login_id IS 'ログイン ID';
 COMMENT ON COLUMN users.fullname IS '氏名';
+COMMENT ON COLUMN users.sex IS '性別	0:不明, 1:男性, 2:女性, 9:その他';
 COMMENT ON COLUMN users.mailaddr IS 'メールアドレス';
 
 CREATE TABLE items (

@@ -134,6 +134,13 @@ Keys
      - False
      - ''
      - latin1_swedish_ci
+   * - 性別
+     - sex
+     - int(11)
+     - True
+     - False
+     - '0'
+     - 0:不明, 1:男性, 2:女性, 9:その他
    * - メールアドレス
      - mailaddr
      - varchar(255)

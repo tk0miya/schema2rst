@@ -134,6 +134,13 @@ Keys
      - False
      - ''::character varying
      - 
+   * - 性別
+     - sex
+     - INTEGER
+     - True
+     - False
+     - 0
+     - 0:不明, 1:男性, 2:女性, 9:その他
    * - メールアドレス
      - mailaddr
      - VARCHAR(255)
