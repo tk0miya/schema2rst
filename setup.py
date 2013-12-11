@@ -2,11 +2,11 @@
 import sys
 from setuptools import setup, find_packages
 
-version = '0.1.0'
+version = '0.9.0'
 long_description = ''
 
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: Python Software Foundation License",
     "Programming Language :: Python",
@@ -28,7 +28,7 @@ if sys.version_info < (2, 7):
 setup(
     name='schema2rst',
     version=version,
-    description='schema2rst generates reST file from database schema',
+    description='schema2rst generates reST doc from database schema',
     long_description=long_description,
     classifiers=classifiers,
     keywords=['document', 'generator'],
