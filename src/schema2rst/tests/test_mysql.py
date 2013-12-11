@@ -23,35 +23,17 @@ class TestSchema2rst(unittest.TestCase):
 
         param = self.mysqld.dsn()
         self.config = tempfile.NamedTemporaryFile('w+')
+        self.config.write("type: mysql+pymysql\n")
         self.config.write("db: %s\nuser: %s\npasswd: \"\"\nunix_socket: %s\n" %
                           (param['db'], param['user'], param['unix_socket']))
         self.config.flush()
-
-        # switch default dialect to pymysql
-        from sqlalchemy.dialects.mysql import base, pymysql
-        self.default_dialect = base.dialect
-        base.dialect = pymysql.dialect
-
-    def tearDown(self):
-        # write back default dialect
-        from sqlalchemy.dialects.mysql import base
-        base.dialect = self.default_dialect
 
     def readfile(self, filename):
         path = os.path.join(os.path.dirname(__file__), filename)
         return io.open(path, encoding='utf-8').read()
 
-    def create_engine(self):
-        url = self.mysqld.url()
-        if '?' in url:
-            url += '&charset=utf8'
-        else:
-            url += '?charset=utf8'
-
-        return sqlalchemy.create_engine(url)
-
     def test_basic(self):
-        engine = self.create_engine()
+        engine = sqlalchemy.create_engine(self.mysqld.url(charset='utf8'))
         engine.execute(self.readfile('schema/mysql_basic.sql'))
 
         try:
@@ -69,7 +51,7 @@ class TestSchema2rst(unittest.TestCase):
             os.unlink(output)
 
     def test_with_comments(self):
-        engine = self.create_engine()
+        engine = sqlalchemy.create_engine(self.mysqld.url(charset='utf8'))
         engine.execute(self.readfile('schema/mysql_comments.sql'))
 
         try:

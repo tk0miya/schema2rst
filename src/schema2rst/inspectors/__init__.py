@@ -23,14 +23,14 @@ def create_engine(config):
                (schema, config['user'], config['passwd'],
                 config['db'], config['unix_socket']))
 
-        if schema == 'mysql':
+        if schema.startswith('mysql'):
             url += "&charset=utf8"
     else:
         url = ('%s://%s:%s@%s:%d/%s' %
                (schema, config['user'], config['passwd'],
                 config['host'], config['port'], config['db']))
 
-        if schema == 'mysql':
+        if schema.startswith('mysql'):
             url += "?charset=utf8"
 
     return sqlalchemy.create_engine(url)

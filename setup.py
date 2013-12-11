@@ -18,7 +18,7 @@ tests_requires = [
     'nose',
     'mock',
     'pep8>=1.3',
-    'testing.mysqld>=1.2.1',
+    'testing.mysqld>=1.2.3',
     'testing.postgresql>=1.0.1',
 ]
 
