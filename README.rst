@@ -40,7 +40,7 @@ You can see example at http://tk0miya.bitbucket.org/schema2rst/build/html/ .
 
 Requirements
 ============
-* Python 2.6, 2.7, 3.2, 3.3
+* Python 2.6, 2.7, 3.2, 3.3, 3.4
 * SQLAlchemy
 * PyYAML
 * Six
